@@ -1,4 +1,4 @@
-package com.enfermeria.config;
+package org.enfermeria.config;
 
 import java.io.IOException;
 import java.io.InputStream;

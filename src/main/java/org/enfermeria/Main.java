@@ -1,6 +1,6 @@
 package com.enfermeria;
 
-import com.enfermeria.config.ConexionBD;
+import org.enfermeria.config.ConexionBD;
 
 import java.sql.Connection;
 import java.sql.SQLException;

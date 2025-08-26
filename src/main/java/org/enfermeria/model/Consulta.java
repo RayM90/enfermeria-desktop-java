@@ -1,55 +1,121 @@
 package org.enfermeria.model;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Consulta {
     private int idConsultas;
     private Date fechaConsulta;
-    private String motivoConsulte;       // Ajustado
+    private String motivoConsulta;
     private String diagnostico;
-    private String tratamientoSeguido;   // Ajustado
-    private String notasAdicionales;     // Opcional: notas_adicionales si quieres exacto
-    private int idPacientes;
-    private int idPersonal;
+    private String tratamientoSugerido;
+    private String notasAdicionales;
+    private int idPacientes;  // FK hacia Paciente
+    private int idPersonal;   // FK hacia Personal
 
     // Constructor vacío
     public Consulta() {}
 
     // Constructor completo
-    public Consulta(int idConsultas, Date fechaConsulta, String motivoConsulte, String diagnostico,
-                    String tratamientoSeguido, String notasAdicionales, int idPacientes, int idPersonal) {
+    public Consulta(int idConsultas, Date fechaConsulta, String motivoConsulta, String diagnostico,
+                    String tratamientoSugerido, String notasAdicionales, int idPacientes, int idPersonal) {
         this.idConsultas = idConsultas;
         this.fechaConsulta = fechaConsulta;
-        this.motivoConsulte = motivoConsulte;
+        this.motivoConsulta = motivoConsulta;
         this.diagnostico = diagnostico;
-        this.tratamientoSeguido = tratamientoSeguido;
+        this.tratamientoSugerido = tratamientoSugerido;
+        this.notasAdicionales = notasAdicionales;
+        this.idPacientes = idPacientes;
+        this.idPersonal = idPersonal;
+    }
+
+    // Constructor sin ID (para insertar nuevos registros)
+    public Consulta(Date fechaConsulta, String motivoConsulta, String diagnostico,
+                    String tratamientoSugerido, String notasAdicionales, int idPacientes, int idPersonal) {
+        this.fechaConsulta = fechaConsulta;
+        this.motivoConsulta = motivoConsulta;
+        this.diagnostico = diagnostico;
+        this.tratamientoSugerido = tratamientoSugerido;
         this.notasAdicionales = notasAdicionales;
         this.idPacientes = idPacientes;
         this.idPersonal = idPersonal;
     }
 
     // Getters y Setters
-    public int getIdConsultas() { return idConsultas; }
-    public void setIdConsultas(int idConsultas) { this.idConsultas = idConsultas; }
+    public int getIdConsultas() {
+        return idConsultas;
+    }
 
-    public Date getFechaConsulta() { return fechaConsulta; }
-    public void setFechaConsulta(Date fechaConsulta) { this.fechaConsulta = fechaConsulta; }
+    public void setIdConsultas(int idConsultas) {
+        this.idConsultas = idConsultas;
+    }
 
-    public String getMotivoConsulte() { return motivoConsulte; }
-    public void setMotivoConsulte(String motivoConsulte) { this.motivoConsulte = motivoConsulte; }
+    public Date getFechaConsulta() {
+        return fechaConsulta;
+    }
 
-    public String getDiagnostico() { return diagnostico; }
-    public void setDiagnostico(String diagnostico) { this.diagnostico = diagnostico; }
+    public void setFechaConsulta(Date fechaConsulta) {
+        this.fechaConsulta = fechaConsulta;
+    }
 
-    public String getTratamientoSeguido() { return tratamientoSeguido; }
-    public void setTratamientoSeguido(String tratamientoSeguido) { this.tratamientoSeguido = tratamientoSeguido; }
+    public String getMotivoConsulta() {
+        return motivoConsulta;
+    }
 
-    public String getNotasAdicionales() { return notasAdicionales; }
-    public void setNotasAdicionales(String notasAdicionales) { this.notasAdicionales = notasAdicionales; }
+    public void setMotivoConsulta(String motivoConsulta) {
+        this.motivoConsulta = motivoConsulta;
+    }
 
-    public int getIdPacientes() { return idPacientes; }
-    public void setIdPacientes(int idPacientes) { this.idPacientes = idPacientes; }
+    public String getDiagnostico() {
+        return diagnostico;
+    }
 
-    public int getIdPersonal() { return idPersonal; }
-    public void setIdPersonal(int idPersonal) { this.idPersonal = idPersonal; }
+    public void setDiagnostico(String diagnostico) {
+        this.diagnostico = diagnostico;
+    }
+
+    public String getTratamientoSugerido() {
+        return tratamientoSugerido;
+    }
+
+    public void setTratamientoSugerido(String tratamientoSugerido) {
+        this.tratamientoSugerido = tratamientoSugerido;
+    }
+
+    public String getNotasAdicionales() {
+        return notasAdicionales;
+    }
+
+    public void setNotasAdicionales(String notasAdicionales) {
+        this.notasAdicionales = notasAdicionales;
+    }
+
+    public int getIdPacientes() {
+        return idPacientes;
+    }
+
+    public void setIdPacientes(int idPacientes) {
+        this.idPacientes = idPacientes;
+    }
+
+    public int getIdPersonal() {
+        return idPersonal;
+    }
+
+    public void setIdPersonal(int idPersonal) {
+        this.idPersonal = idPersonal;
+    }
+
+    @Override
+    public String toString() {
+        return "Consulta{" +
+                "idConsultas=" + idConsultas +
+                ", fechaConsulta=" + fechaConsulta +
+                ", motivoConsulta='" + motivoConsulta + '\'' +
+                ", diagnostico='" + diagnostico + '\'' +
+                ", tratamientoSugerido='" + tratamientoSugerido + '\'' +
+                ", notasAdicionales='" + notasAdicionales + '\'' +
+                ", idPacientes=" + idPacientes +
+                ", idPersonal=" + idPersonal +
+                '}';
+    }
 }

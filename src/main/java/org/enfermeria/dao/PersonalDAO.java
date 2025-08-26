@@ -9,80 +9,140 @@ import java.util.List;
 
 public class PersonalDAO {
 
-    // Crear/Insertar
-    public void insertarPersonal(Personal personal) throws SQLException {
-        String sql = "INSERT INTO personal (id_tipo_documento, numero_documento, nombres, apellidos, especialidad, correo, telefono, fecha_nacimiento, fecha_contratacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = org.enfermeria.config.ConexionBD.getConnection();
+    // Crear nuevo personal
+    public boolean crearPersonal(Personal p) {
+        String sql = "INSERT INTO personal (id_tipodocumento, numero_documento, nombres, apellidos, especialidad, correo, telefono, fecha_contratacion, fecha_nacimiento) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, personal.getIdTipoDocumento());
-            ps.setString(2, personal.getNumeroDocumento());
-            ps.setString(3, personal.getNombres());
-            ps.setString(4, personal.getApellidos());
-            ps.setString(5, personal.getEspecialidad());
-            ps.setString(6, personal.getCorreo());
-            ps.setString(7, personal.getTelefono());
-            ps.setDate(8, new java.sql.Date(personal.getFechaNacimiento().getTime()));
-            ps.setDate(9, new java.sql.Date(personal.getFechaContratacion().getTime()));
+            ps.setInt(1, p.getId_tipodocumento());
+            ps.setString(2, p.getNumero_documento());
+            ps.setString(3, p.getNombres());
+            ps.setString(4, p.getApellidos());
+            ps.setString(5, p.getEspecialidad());
+            ps.setString(6, p.getCorreo());
+            ps.setString(7, p.getTelefono());
+            ps.setDate(8, new java.sql.Date(p.getFecha_contratacion().getTime()));
+            ps.setDate(9, new java.sql.Date(p.getFecha_nacimiento().getTime()));
 
-            ps.executeUpdate();
+            int filas = ps.executeUpdate();
+            return filas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al crear personal: " + e.getMessage());
+            return false;
         }
     }
 
-    // Leer/Listar todos los personal
-    public List<Personal> listarPersonal() throws SQLException {
-        List<Personal> lista = new ArrayList<>();
-        String sql = "SELECT * FROM personal";
+    // Obtener personal por ID
+    public Personal obtenerPersonalPorId(int id) {
+        String sql = "SELECT * FROM personal WHERE id_personal = ?";
+        Personal personal = null;
+
         try (Connection conn = ConexionBD.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                personal = new Personal(
+                        rs.getInt("id_personal"),
+                        rs.getInt("id_tipodocumento"),
+                        rs.getString("numero_documento"),
+                        rs.getString("nombres"),
+                        rs.getString("apellidos"),
+                        rs.getString("especialidad"),
+                        rs.getString("correo"),
+                        rs.getString("telefono"),
+                        rs.getDate("fecha_contratacion"),
+                        rs.getDate("fecha_nacimiento")
+                );
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener personal: " + e.getMessage());
+        }
+
+        return personal;
+    }
+
+    // Actualizar personal
+    public boolean actualizarPersonal(Personal p) {
+        String sql = "UPDATE personal SET id_tipodocumento=?, numero_documento=?, nombres=?, apellidos=?, especialidad=?, correo=?, telefono=?, fecha_contratacion=?, fecha_nacimiento=? " +
+                "WHERE id_personal=?";
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, p.getId_tipodocumento());
+            ps.setString(2, p.getNumero_documento());
+            ps.setString(3, p.getNombres());
+            ps.setString(4, p.getApellidos());
+            ps.setString(5, p.getEspecialidad());
+            ps.setString(6, p.getCorreo());
+            ps.setString(7, p.getTelefono());
+            ps.setDate(8, new java.sql.Date(p.getFecha_contratacion().getTime()));
+            ps.setDate(9, new java.sql.Date(p.getFecha_nacimiento().getTime()));
+            ps.setInt(10, p.getId_personal());
+
+            int filas = ps.executeUpdate();
+            return filas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar personal: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Eliminar personal
+    public boolean eliminarPersonal(int id) {
+        String sql = "DELETE FROM personal WHERE id_personal=?";
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar personal: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Listar todos los personales
+    public List<Personal> listarPersonal() {
+        String sql = "SELECT * FROM personal";
+        List<Personal> lista = new ArrayList<>();
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                Personal p = new Personal();
-                p.setIdPersonal(rs.getInt("id_personal"));
-                p.setIdTipoDocumento(rs.getInt("id_tipo_documento"));
-                p.setNumeroDocumento(rs.getString("numero_documento"));
-                p.setNombres(rs.getString("nombres"));
-                p.setApellidos(rs.getString("apellidos"));
-                p.setEspecialidad(rs.getString("especialidad"));
-                p.setCorreo(rs.getString("correo"));
-                p.setTelefono(rs.getString("telefono"));
-                p.setFechaNacimiento(rs.getDate("fecha_nacimiento"));
-                p.setFechaContratacion(rs.getDate("fecha_contratacion"));
+                Personal p = new Personal(
+                        rs.getInt("id_personal"),
+                        rs.getInt("id_tipodocumento"),
+                        rs.getString("numero_documento"),
+                        rs.getString("nombres"),
+                        rs.getString("apellidos"),
+                        rs.getString("especialidad"),
+                        rs.getString("correo"),
+                        rs.getString("telefono"),
+                        rs.getDate("fecha_contratacion"),
+                        rs.getDate("fecha_nacimiento")
+                );
                 lista.add(p);
             }
+
+        } catch (SQLException e) {
+            System.err.println("Error al listar personal: " + e.getMessage());
         }
+
         return lista;
-    }
-
-    // Actualizar
-    public void actualizarPersonal(Personal personal) throws SQLException {
-        String sql = "UPDATE personal SET id_tipo_documento=?, numero_documento=?, nombres=?, apellidos=?, especialidad=?, correo=?, telefono=?, fecha_nacimiento=?, fecha_contratacion=? WHERE id_personal=?";
-        try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, personal.getIdTipoDocumento());
-            ps.setString(2, personal.getNumeroDocumento());
-            ps.setString(3, personal.getNombres());
-            ps.setString(4, personal.getApellidos());
-            ps.setString(5, personal.getEspecialidad());
-            ps.setString(6, personal.getCorreo());
-            ps.setString(7, personal.getTelefono());
-            ps.setDate(8, new java.sql.Date(personal.getFechaNacimiento().getTime()));
-            ps.setDate(9, new java.sql.Date(personal.getFechaContratacion().getTime()));
-            ps.setInt(10, personal.getIdPersonal());
-
-            ps.executeUpdate();
-        }
-    }
-
-    // Eliminar
-    public void eliminarPersonal(int id) throws SQLException {
-        String sql = "DELETE FROM personal WHERE id_personal=?";
-        try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-        }
     }
 }

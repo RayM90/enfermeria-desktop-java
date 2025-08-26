@@ -1,65 +1,67 @@
 package org.enfermeria.model;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Paciente {
-    private int idPacientes;
-    private int idTipoDocumento;
-    private String numeroDocumento;
+
+    private int id_pacientes;
+    private int id_tipodocumento;
+    private String numero_documento;
     private String nombres;
-    private String apellido;
-    private Date fechaNacimiento;
-    private int idSexo;
+    private String apellidos;
+    private Date fecha_nacimiento;
+    private int id_sexo;
+    private int id_tiposangre;
     private String correo;
-    private String direccion;
-    private String referido;
+    private String telefono; // 🔹 Nuevo campo
 
     // Constructor vacío
     public Paciente() {}
 
     // Constructor completo
-    public Paciente(int idPacientes, int idTipoDocumento, String numeroDocumento, String nombres, String apellido,
-                    Date fechaNacimiento, int idSexo, String correo, String direccion, String referido) {
-        this.idPacientes = idPacientes;
-        this.idTipoDocumento = idTipoDocumento;
-        this.numeroDocumento = numeroDocumento;
+    public Paciente(int id_pacientes, int id_tipodocumento, String numero_documento,
+                    String nombres, String apellidos, Date fecha_nacimiento,
+                    int id_sexo, int id_tiposangre, String correo, String telefono) {
+        this.id_pacientes = id_pacientes;
+        this.id_tipodocumento = id_tipodocumento;
+        this.numero_documento = numero_documento;
         this.nombres = nombres;
-        this.apellido = apellido;
-        this.fechaNacimiento = fechaNacimiento;
-        this.idSexo = idSexo;
+        this.apellidos = apellidos;
+        this.fecha_nacimiento = fecha_nacimiento;
+        this.id_sexo = id_sexo;
+        this.id_tiposangre = id_tiposangre;
         this.correo = correo;
-        this.direccion = direccion;
-        this.referido = referido;
+        this.telefono = telefono;
     }
 
     // Getters y Setters
-    public int getIdPacientes() { return idPacientes; }
-    public void setIdPacientes(int idPacientes) { this.idPacientes = idPacientes; }
+    public int getId_pacientes() { return id_pacientes; }
+    public void setId_pacientes(int id_pacientes) { this.id_pacientes = id_pacientes; }
 
-    public int getIdTipoDocumento() { return idTipoDocumento; }
-    public void setIdTipoDocumento(int idTipoDocumento) { this.idTipoDocumento = idTipoDocumento; }
+    public int getId_tipodocumento() { return id_tipodocumento; }
+    public void setId_tipodocumento(int id_tipodocumento) { this.id_tipodocumento = id_tipodocumento; }
 
-    public String getNumeroDocumento() { return numeroDocumento; }
-    public void setNumeroDocumento(String numeroDocumento) { this.numeroDocumento = numeroDocumento; }
+    public String getNumero_documento() { return numero_documento; }
+    public void setNumero_documento(String numero_documento) { this.numero_documento = numero_documento; }
 
     public String getNombres() { return nombres; }
     public void setNombres(String nombres) { this.nombres = nombres; }
 
-    public String getApellido() { return apellido; }
-    public void setApellido(String apellido) { this.apellido = apellido; }
+    public String getApellidos() { return apellidos; }
+    public void setApellidos(String apellidos) { this.apellidos = apellidos; }
 
-    public Date getFechaNacimiento() { return fechaNacimiento; }
-    public void setFechaNacimiento(Date fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
+    public Date getFecha_nacimiento() { return fecha_nacimiento; }
+    public void setFecha_nacimiento(Date fecha_nacimiento) { this.fecha_nacimiento = fecha_nacimiento; }
 
-    public int getIdSexo() { return idSexo; }
-    public void setIdSexo(int idSexo) { this.idSexo = idSexo; }
+    public int getId_sexo() { return id_sexo; }
+    public void setId_sexo(int id_sexo) { this.id_sexo = id_sexo; }
+
+    public int getId_tiposangre() { return id_tiposangre; }
+    public void setId_tiposangre(int id_tiposangre) { this.id_tiposangre = id_tiposangre; }
 
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
 
-    public String getDireccion() { return direccion; }
-    public void setDireccion(String direccion) { this.direccion = direccion; }
-
-    public String getReferido() { return referido; }
-    public void setReferido(String referido) { this.referido = referido; }
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
 }

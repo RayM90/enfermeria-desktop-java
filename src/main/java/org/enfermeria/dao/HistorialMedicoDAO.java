@@ -9,70 +9,124 @@ import java.util.List;
 
 public class HistorialMedicoDAO {
 
-    public void insertarHistorial(HistorialMedico h) throws SQLException {
-        String sql = "INSERT INTO historial_medico (fecha_registro, diagnostico, tratamiento, alergias, condiciones_medicas_previas, medicamentos_actuales, id_pacientes) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    // 🔹 Insertar un historial médico
+    public void insertar(HistorialMedico historial) {
+        String sql = "INSERT INTO historial_medico (fecha_registro, diagnostico, tratamiento, alergias, " +
+                "condiciones_medicas_previas, medicamentes_actuales, id_pacientes) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setDate(1, new java.sql.Date(h.getFecha_registro().getTime()));
-            ps.setString(2, h.getDiagnostico());
-            ps.setString(3, h.getTratamiento());
-            ps.setString(4, h.getAlergias());
-            ps.setString(5, h.getCondiciones_medicas_previas());
-            ps.setString(6, h.getMedicamentos_actuales());
-            ps.setInt(7, h.getId_pacientes());
+            stmt.setDate(1, new java.sql.Date(historial.getFechaRegistro().getTime()));
+            stmt.setString(2, historial.getDiagnostico());
+            stmt.setString(3, historial.getTratamiento());
+            stmt.setString(4, historial.getAlergias());
+            stmt.setString(5, historial.getCondicionesMedicasPrevias());
+            stmt.setString(6, historial.getMedicamentosActuales());
+            stmt.setInt(7, historial.getIdPaciente());
 
-            ps.executeUpdate();
+            stmt.executeUpdate();
+
+            // recuperar id autogenerado
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    historial.setIdHistorialMedico(rs.getInt(1));
+                }
+            }
+
+            System.out.println("✅ Historial médico insertado correctamente.");
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error insertando historial médico: " + e.getMessage());
         }
     }
 
-    public List<HistorialMedico> listarHistorial() throws SQLException {
+    // 🔹 Obtener historial por ID
+    public HistorialMedico obtenerPorId(int id) {
+        String sql = "SELECT * FROM historial_medico WHERE id_historialmedico = ?";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSet(rs);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error obteniendo historial médico: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // 🔹 Listar todos los historiales
+    public List<HistorialMedico> listarTodos() {
         List<HistorialMedico> lista = new ArrayList<>();
         String sql = "SELECT * FROM historial_medico";
         try (Connection conn = ConexionBD.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                HistorialMedico h = new HistorialMedico();
-                h.setId_historialmedicos(rs.getInt("id_historialmedicos"));
-                h.setFecha_registro(rs.getDate("fecha_registro"));
-                h.setDiagnostico(rs.getString("diagnostico"));
-                h.setTratamiento(rs.getString("tratamiento"));
-                h.setAlergias(rs.getString("alergias"));
-                h.setCondiciones_medicas_previas(rs.getString("condiciones_medicas_previas"));
-                h.setMedicamentos_actuales(rs.getString("medicamentos_actuales"));
-                h.setId_pacientes(rs.getInt("id_pacientes"));
-                lista.add(h);
+                lista.add(mapResultSet(rs));
             }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error listando historiales médicos: " + e.getMessage());
         }
         return lista;
     }
 
-    public void actualizarHistorial(HistorialMedico h) throws SQLException {
-        String sql = "UPDATE historial_medico SET fecha_registro=?, diagnostico=?, tratamiento=?, alergias=?, condiciones_medicas_previas=?, medicamentos_actuales=?, id_pacientes=? WHERE id_historialmedicos=?";
+    // 🔹 Actualizar historial médico
+    public void actualizar(HistorialMedico historial) {
+        String sql = "UPDATE historial_medico SET fecha_registro=?, diagnostico=?, tratamiento=?, alergias=?, " +
+                "condiciones_medicas_previas=?, medicamentes_actuales=?, id_pacientes=? WHERE id_historialmedico=?";
         try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            ps.setDate(1, new java.sql.Date(h.getFecha_registro().getTime()));
-            ps.setString(2, h.getDiagnostico());
-            ps.setString(3, h.getTratamiento());
-            ps.setString(4, h.getAlergias());
-            ps.setString(5, h.getCondiciones_medicas_previas());
-            ps.setString(6, h.getMedicamentos_actuales());
-            ps.setInt(7, h.getId_pacientes());
-            ps.setInt(8, h.getId_historialmedicos());
+            stmt.setDate(1, new java.sql.Date(historial.getFechaRegistro().getTime()));
+            stmt.setString(2, historial.getDiagnostico());
+            stmt.setString(3, historial.getTratamiento());
+            stmt.setString(4, historial.getAlergias());
+            stmt.setString(5, historial.getCondicionesMedicasPrevias());
+            stmt.setString(6, historial.getMedicamentosActuales());
+            stmt.setInt(7, historial.getIdPaciente());
+            stmt.setInt(8, historial.getIdHistorialMedico());
 
-            ps.executeUpdate();
+            stmt.executeUpdate();
+            System.out.println("✅ Historial médico actualizado correctamente.");
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error actualizando historial médico: " + e.getMessage());
         }
     }
 
-    public void eliminarHistorial(int id) throws SQLException {
-        String sql = "DELETE FROM historial_medico WHERE id_historialmedicos=?";
+    // 🔹 Eliminar historial médico
+    public void eliminar(int id) {
+        String sql = "DELETE FROM historial_medico WHERE id_historialmedico=?";
         try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+            System.out.println("✅ Historial médico eliminado correctamente.");
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error eliminando historial médico: " + e.getMessage());
         }
+    }
+
+    // 🔹 Método privado para mapear ResultSet -> HistorialMedico
+    private HistorialMedico mapResultSet(ResultSet rs) throws SQLException {
+        HistorialMedico historial = new HistorialMedico();
+        historial.setIdHistorialMedico(rs.getInt("id_historialmedico"));
+        historial.setFechaRegistro(rs.getDate("fecha_registro"));
+        historial.setDiagnostico(rs.getString("diagnostico"));
+        historial.setTratamiento(rs.getString("tratamiento"));
+        historial.setAlergias(rs.getString("alergias"));
+        historial.setCondicionesMedicasPrevias(rs.getString("condiciones_medicas_previas"));
+        historial.setMedicamentosActuales(rs.getString("medicamentes_actuales"));
+        historial.setIdPaciente(rs.getInt("id_pacientes"));
+        return historial;
     }
 }

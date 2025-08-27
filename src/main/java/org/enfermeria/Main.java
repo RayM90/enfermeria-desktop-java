@@ -27,7 +27,7 @@ public class Main {
             System.out.println("\n=== MENÚ PACIENTES ===");
             System.out.println("1. Crear paciente");
             System.out.println("2. Listar pacientes");
-            System.out.println("3. Buscar paciente por ID");
+            System.out.println("3. Buscar paciente por documento");
             System.out.println("4. Actualizar paciente");
             System.out.println("5. Eliminar paciente");
             System.out.println("0. Salir");
@@ -113,10 +113,9 @@ public class Main {
                 }
 
                 case 3 -> {
-                    System.out.print("Ingresa ID del paciente: ");
-                    int id = sc.nextInt();
-                    sc.nextLine();
-                    Paciente paciente = pacienteDAO.obtenerPacientePorId(id);
+                    System.out.print("Ingresa número de documento del paciente: ");
+                    String doc = sc.nextLine();
+                    Paciente paciente = pacienteDAO.obtenerPacientePorDocumento(doc);
                     if (paciente != null) {
                         System.out.println("ID: " + paciente.getId_pacientes()
                                 + ", Nombre: " + paciente.getNombres() + " " + paciente.getApellidos()
@@ -132,61 +131,76 @@ public class Main {
                 }
 
                 case 4 -> {
-                    System.out.print("Ingresa ID del paciente a actualizar: ");
-                    int id = sc.nextInt();
-                    sc.nextLine();
-                    Paciente paciente = pacienteDAO.obtenerPacientePorId(id);
+                    System.out.print("Ingresa número de documento del paciente a actualizar: ");
+                    String doc = sc.nextLine();
+                    Paciente paciente = pacienteDAO.obtenerPacientePorDocumento(doc);
+
                     if (paciente != null) {
-                        System.out.print("Nuevos nombres: ");
-                        paciente.setNombres(sc.nextLine());
-                        System.out.print("Nuevos apellidos: ");
-                        paciente.setApellidos(sc.nextLine());
-                        System.out.print("Nuevo número de documento: ");
-                        paciente.setNumero_documento(sc.nextLine());
-                        System.out.print("Nuevo correo: ");
-                        paciente.setCorreo(sc.nextLine());
-                        System.out.print("Nuevo teléfono: ");
-                        paciente.setTelefono(sc.nextLine());
-                        System.out.print("Nueva dirección: ");
-                        paciente.setDireccion(sc.nextLine());
-                        System.out.print("Nuevo cargo: ");
-                        paciente.setCargo(sc.nextLine());
+                        int subOpcion;
+                        do {
+                            System.out.println("\n--- EDITAR PACIENTE ---");
+                            System.out.println("1. Nombres");
+                            System.out.println("2. Apellidos");
+                            System.out.println("3. Correo");
+                            System.out.println("4. Teléfono");
+                            System.out.println("5. Dirección");
+                            System.out.println("6. Cargo");
+                            System.out.println("7. Tipo de documento");
+                            System.out.println("8. Sexo");
+                            System.out.println("9. Tipo de sangre");
+                            System.out.println("0. Salir");
+                            System.out.print("Selecciona el campo a editar: ");
+                            subOpcion = sc.nextInt();
+                            sc.nextLine();
 
-                        // Mini-menú TipoDocumento
-                        List<TipoDocumento> listaTD = tipoDocumentoDAO.listarTiposDocumento();
-                        System.out.println("\n--- TIPOS DE DOCUMENTO ---");
-                        for (TipoDocumento td : listaTD) {
-                            System.out.println(td.getId_tipodocumento() + " - " + td.getTipo_documento());
-                        }
-                        System.out.print("Selecciona nuevo ID tipo documento: ");
-                        paciente.setId_tipodocumento(sc.nextInt());
-                        sc.nextLine();
-
-                        // Mini-menú Sexo
-                        List<Sexo> listaSexo = sexoDAO.listarSexos();
-                        System.out.println("\n--- SEXO ---");
-                        for (Sexo s : listaSexo) {
-                            System.out.println(s.getId_sexo() + " - " + s.getDescripcion());
-                        }
-                        System.out.print("Selecciona nuevo ID sexo: ");
-                        paciente.setId_sexo(sc.nextInt());
-                        sc.nextLine();
-
-                        // Mini-menú TipoSangre
-                        List<TipoSangre> listaTS = tipoSangreDAO.listarTiposSangre();
-                        System.out.println("\n--- TIPO DE SANGRE ---");
-                        for (TipoSangre ts : listaTS) {
-                            System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre());
-                        }
-                        System.out.print("Selecciona nuevo ID tipo de sangre: ");
-                        paciente.setId_tiposangre(sc.nextInt());
-                        sc.nextLine();
+                            switch (subOpcion) {
+                                case 1 -> { System.out.print("Nuevo nombre: "); paciente.setNombres(sc.nextLine()); }
+                                case 2 -> { System.out.print("Nuevo apellido: "); paciente.setApellidos(sc.nextLine()); }
+                                case 3 -> { System.out.print("Nuevo correo: "); paciente.setCorreo(sc.nextLine()); }
+                                case 4 -> { System.out.print("Nuevo teléfono: "); paciente.setTelefono(sc.nextLine()); }
+                                case 5 -> { System.out.print("Nueva dirección: "); paciente.setDireccion(sc.nextLine()); }
+                                case 6 -> { System.out.print("Nuevo cargo: "); paciente.setCargo(sc.nextLine()); }
+                                case 7 -> {
+                                    List<TipoDocumento> listaTD = tipoDocumentoDAO.listarTiposDocumento();
+                                    System.out.println("\n--- TIPOS DE DOCUMENTO ---");
+                                    for (TipoDocumento td : listaTD) {
+                                        System.out.println(td.getId_tipodocumento() + " - " + td.getTipo_documento());
+                                    }
+                                    System.out.print("Selecciona nuevo ID tipo documento: ");
+                                    paciente.setId_tipodocumento(sc.nextInt());
+                                    sc.nextLine();
+                                }
+                                case 8 -> {
+                                    List<Sexo> listaSexo = sexoDAO.listarSexos();
+                                    System.out.println("\n--- SEXO ---");
+                                    for (Sexo s : listaSexo) {
+                                        System.out.println(s.getId_sexo() + " - " + s.getDescripcion());
+                                    }
+                                    System.out.print("Selecciona nuevo ID sexo: ");
+                                    paciente.setId_sexo(sc.nextInt());
+                                    sc.nextLine();
+                                }
+                                case 9 -> {
+                                    List<TipoSangre> listaTS = tipoSangreDAO.listarTiposSangre();
+                                    System.out.println("\n--- TIPO DE SANGRE ---");
+                                    for (TipoSangre ts : listaTS) {
+                                        System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre());
+                                    }
+                                    System.out.print("Selecciona nuevo ID tipo de sangre: ");
+                                    paciente.setId_tiposangre(sc.nextInt());
+                                    sc.nextLine();
+                                }
+                                case 0 -> System.out.println("Saliendo de edición...");
+                                default -> System.out.println("Opción no válida");
+                            }
+                        } while (subOpcion != 0);
 
                         if (pacienteDAO.actualizarPaciente(paciente)) {
-                            System.out.println("✅ Paciente actualizado");
+                            System.out.println("✅ Paciente actualizado correctamente");
                         } else {
                             System.out.println("❌ Error al actualizar paciente");
                         }
+
                     } else {
                         System.out.println("❌ Paciente no encontrado");
                     }

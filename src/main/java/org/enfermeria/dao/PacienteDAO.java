@@ -73,6 +73,42 @@ public class PacienteDAO {
         return paciente;
     }
 
+    // 🔹 Obtener paciente por número de documento
+    public Paciente obtenerPacientePorDocumento(String numero_documento) {
+        String sql = "SELECT * FROM pacientes WHERE numero_documento = ?";
+        Paciente paciente = null;
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, numero_documento);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                paciente = new Paciente(
+                        rs.getInt("id_pacientes"),
+                        rs.getInt("id_tipodocumento"),
+                        rs.getString("numero_documento"),
+                        rs.getString("nombres"),
+                        rs.getString("apellidos"),
+                        rs.getDate("fecha_nacimiento"),
+                        rs.getInt("id_sexo"),
+                        rs.getInt("id_tiposangre"),
+                        rs.getString("correo"),
+                        rs.getString("telefono"),
+                        rs.getString("direccion"),
+                        rs.getString("cargo"),
+                        rs.getTimestamp("fecha_registro")
+                );
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener paciente por documento: " + e.getMessage());
+        }
+
+        return paciente;
+    }
+
     // Actualizar paciente
     public boolean actualizarPaciente(Paciente p) {
         String sql = "UPDATE pacientes SET id_tipodocumento=?, numero_documento=?, nombres=?, apellidos=?, fecha_nacimiento=?, id_sexo=?, id_tiposangre=?, correo=?, telefono=?, direccion=?, cargo=? " +

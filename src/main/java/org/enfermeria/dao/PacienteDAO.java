@@ -11,8 +11,8 @@ public class PacienteDAO {
 
     // Crear nuevo paciente
     public boolean crearPaciente(Paciente p) {
-        String sql = "INSERT INTO pacientes (id_tipodocumento, numero_documento, nombres, apellidos, fecha_nacimiento, id_sexo, id_tiposangre, correo, telefono) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO pacientes (id_tipodocumento, numero_documento, nombres, apellidos, fecha_nacimiento, id_sexo, id_tiposangre, correo, telefono, direccion, cargo) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -26,6 +26,8 @@ public class PacienteDAO {
             ps.setInt(7, p.getId_tiposangre());
             ps.setString(8, p.getCorreo() != null ? p.getCorreo() : "");
             ps.setString(9, p.getTelefono() != null ? p.getTelefono() : "");
+            ps.setString(10, p.getDireccion() != null ? p.getDireccion() : "");
+            ps.setString(11, p.getCargo() != null ? p.getCargo() : "");
 
             return ps.executeUpdate() > 0;
 
@@ -57,7 +59,10 @@ public class PacienteDAO {
                         rs.getInt("id_sexo"),
                         rs.getInt("id_tiposangre"),
                         rs.getString("correo"),
-                        rs.getString("telefono")
+                        rs.getString("telefono"),
+                        rs.getString("direccion"),
+                        rs.getString("cargo"),
+                        rs.getTimestamp("fecha_registro")
                 );
             }
 
@@ -70,7 +75,7 @@ public class PacienteDAO {
 
     // Actualizar paciente
     public boolean actualizarPaciente(Paciente p) {
-        String sql = "UPDATE pacientes SET id_tipodocumento=?, numero_documento=?, nombres=?, apellidos=?, fecha_nacimiento=?, id_sexo=?, id_tiposangre=?, correo=?, telefono=? " +
+        String sql = "UPDATE pacientes SET id_tipodocumento=?, numero_documento=?, nombres=?, apellidos=?, fecha_nacimiento=?, id_sexo=?, id_tiposangre=?, correo=?, telefono=?, direccion=?, cargo=? " +
                 "WHERE id_pacientes=?";
 
         try (Connection conn = ConexionBD.getConnection();
@@ -85,7 +90,9 @@ public class PacienteDAO {
             ps.setInt(7, p.getId_tiposangre());
             ps.setString(8, p.getCorreo() != null ? p.getCorreo() : "");
             ps.setString(9, p.getTelefono() != null ? p.getTelefono() : "");
-            ps.setInt(10, p.getId_pacientes());
+            ps.setString(10, p.getDireccion() != null ? p.getDireccion() : "");
+            ps.setString(11, p.getCargo() != null ? p.getCargo() : "");
+            ps.setInt(12, p.getId_pacientes());
 
             return ps.executeUpdate() > 0;
 
@@ -131,7 +138,10 @@ public class PacienteDAO {
                         rs.getInt("id_sexo"),
                         rs.getInt("id_tiposangre"),
                         rs.getString("correo"),
-                        rs.getString("telefono")
+                        rs.getString("telefono"),
+                        rs.getString("direccion"),
+                        rs.getString("cargo"),
+                        rs.getTimestamp("fecha_registro")
                 );
                 lista.add(p);
             }

@@ -56,12 +56,15 @@ public class Main {
                     System.out.print("Apellidos: ");
                     p.setApellidos(sc.nextLine());
 
-                    // 🔹 Nuevos campos
+                    // Nuevos campos
                     System.out.print("Correo: ");
                     p.setCorreo(sc.nextLine());
-
                     System.out.print("Teléfono: ");
                     p.setTelefono(sc.nextLine());
+                    System.out.print("Dirección: ");
+                    p.setDireccion(sc.nextLine());
+                    System.out.print("Cargo: ");
+                    p.setCargo(sc.nextLine());
 
                     System.out.print("Fecha de nacimiento (yyyy-mm-dd): ");
                     String fecha = sc.nextLine();
@@ -100,7 +103,12 @@ public class Main {
                     for (Paciente paciente : lista) {
                         System.out.println("ID: " + paciente.getId_pacientes()
                                 + ", Nombre: " + paciente.getNombres() + " " + paciente.getApellidos()
-                                + ", Documento: " + paciente.getNumero_documento());
+                                + ", Documento: " + paciente.getNumero_documento()
+                                + ", Correo: " + paciente.getCorreo()
+                                + ", Teléfono: " + paciente.getTelefono()
+                                + ", Dirección: " + paciente.getDireccion()
+                                + ", Cargo: " + paciente.getCargo()
+                                + ", Fecha registro: " + paciente.getFecha_registro());
                     }
                 }
 
@@ -114,7 +122,10 @@ public class Main {
                                 + ", Nombre: " + paciente.getNombres() + " " + paciente.getApellidos()
                                 + ", Documento: " + paciente.getNumero_documento()
                                 + ", Correo: " + paciente.getCorreo()
-                                + ", Teléfono: " + paciente.getTelefono());
+                                + ", Teléfono: " + paciente.getTelefono()
+                                + ", Dirección: " + paciente.getDireccion()
+                                + ", Cargo: " + paciente.getCargo()
+                                + ", Fecha registro: " + paciente.getFecha_registro());
                     } else {
                         System.out.println("❌ Paciente no encontrado");
                     }
@@ -126,7 +137,6 @@ public class Main {
                     sc.nextLine();
                     Paciente paciente = pacienteDAO.obtenerPacientePorId(id);
                     if (paciente != null) {
-                        // Actualización de campos básicos
                         System.out.print("Nuevos nombres: ");
                         paciente.setNombres(sc.nextLine());
                         System.out.print("Nuevos apellidos: ");
@@ -137,6 +147,10 @@ public class Main {
                         paciente.setCorreo(sc.nextLine());
                         System.out.print("Nuevo teléfono: ");
                         paciente.setTelefono(sc.nextLine());
+                        System.out.print("Nueva dirección: ");
+                        paciente.setDireccion(sc.nextLine());
+                        System.out.print("Nuevo cargo: ");
+                        paciente.setCargo(sc.nextLine());
 
                         // Mini-menú TipoDocumento
                         List<TipoDocumento> listaTD = tipoDocumentoDAO.listarTiposDocumento();

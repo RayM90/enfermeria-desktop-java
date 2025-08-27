@@ -1,6 +1,7 @@
 package org.enfermeria.model;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 public class Paciente {
 
@@ -13,15 +14,19 @@ public class Paciente {
     private int id_sexo;
     private int id_tiposangre;
     private String correo;
-    private String telefono; // 🔹 Nuevo campo
+    private String telefono;
+    private String direccion;         // 🔹 Nuevo campo
+    private String cargo;             // 🔹 Nuevo campo
+    private Timestamp fecha_registro; // 🔹 Autogenerado por la BD
 
     // Constructor vacío
     public Paciente() {}
 
-    // Constructor completo
+    // Constructor completo para lecturas desde BD (incluye fecha_registro y cargo)
     public Paciente(int id_pacientes, int id_tipodocumento, String numero_documento,
                     String nombres, String apellidos, Date fecha_nacimiento,
-                    int id_sexo, int id_tiposangre, String correo, String telefono) {
+                    int id_sexo, int id_tiposangre, String correo, String telefono,
+                    String direccion, String cargo, Timestamp fecha_registro) {
         this.id_pacientes = id_pacientes;
         this.id_tipodocumento = id_tipodocumento;
         this.numero_documento = numero_documento;
@@ -32,6 +37,18 @@ public class Paciente {
         this.id_tiposangre = id_tiposangre;
         this.correo = correo;
         this.telefono = telefono;
+        this.direccion = direccion;
+        this.cargo = cargo;
+        this.fecha_registro = fecha_registro;
+    }
+
+    // Constructor para crear nuevo paciente (sin fecha_registro)
+    public Paciente(int id_pacientes, int id_tipodocumento, String numero_documento,
+                    String nombres, String apellidos, Date fecha_nacimiento,
+                    int id_sexo, int id_tiposangre, String correo, String telefono,
+                    String direccion, String cargo) {
+        this(id_pacientes, id_tipodocumento, numero_documento, nombres, apellidos,
+                fecha_nacimiento, id_sexo, id_tiposangre, correo, telefono, direccion, cargo, null);
     }
 
     // Getters y Setters
@@ -64,4 +81,13 @@ public class Paciente {
 
     public String getTelefono() { return telefono; }
     public void setTelefono(String telefono) { this.telefono = telefono; }
+
+    public String getDireccion() { return direccion; }
+    public void setDireccion(String direccion) { this.direccion = direccion; }
+
+    public String getCargo() { return cargo; }
+    public void setCargo(String cargo) { this.cargo = cargo; }
+
+    public Timestamp getFecha_registro() { return fecha_registro; }
+    public void setFecha_registro(Timestamp fecha_registro) { this.fecha_registro = fecha_registro; }
 }

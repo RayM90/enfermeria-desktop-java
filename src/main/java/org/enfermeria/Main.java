@@ -8,6 +8,7 @@ import org.enfermeria.dao.TipoSangreDAO;
 import org.enfermeria.model.Paciente;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
@@ -51,7 +52,7 @@ public class Main {
                 case 1 -> {
                     Paciente p = new Paciente();
 
-                    // Mini-menú TipoDocumento
+                    // Tipo de documento
                     tipoDocumentoDAO.listarTiposDocumento().forEach(td ->
                             System.out.println(td.getId_tipodocumento() + " - " + td.getTipo_documento())
                     );
@@ -61,24 +62,27 @@ public class Main {
 
                     System.out.print("Número de documento: ");
                     p.setNumero_documento(sc.nextLine());
+
                     System.out.print("Nombres: ");
                     p.setNombres(sc.nextLine());
+
                     System.out.print("Apellidos: ");
                     p.setApellidos(sc.nextLine());
 
-                    System.out.print("Correo: ");
-                    p.setCorreo(sc.nextLine());
-                    System.out.print("Teléfono: ");
-                    p.setTelefono(sc.nextLine());
-                    System.out.print("Dirección: ");
-                    p.setDireccion(sc.nextLine());
-                    System.out.print("Cargo: ");
-                    p.setCargo(sc.nextLine());
+                    // Fecha de nacimiento validada
+                    Date fechaNac = null;
+                    while (fechaNac == null) {
+                        System.out.print("Fecha de nacimiento (yyyy-mm-dd): ");
+                        String fechaStr = sc.nextLine();
+                        try {
+                            fechaNac = Date.valueOf(fechaStr);
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("❌ Formato de fecha incorrecto. Usa yyyy-mm-dd");
+                        }
+                    }
+                    p.setFecha_nacimiento(fechaNac);
 
-                    System.out.print("Fecha de nacimiento (yyyy-mm-dd): ");
-                    p.setFecha_nacimiento(java.sql.Date.valueOf(sc.nextLine()));
-
-                    // Mini-menú Sexo
+                    // Sexo
                     sexoDAO.listarSexos().forEach(s ->
                             System.out.println(s.getId_sexo() + " - " + s.getDescripcion())
                     );
@@ -86,13 +90,53 @@ public class Main {
                     p.setId_sexo(sc.nextInt());
                     sc.nextLine();
 
-                    // Mini-menú TipoSangre
+                    // Tipo de sangre con validación
+                    int idTipoSangre = 0;
+                    boolean valido = false;
                     tipoSangreDAO.listarTiposSangre().forEach(ts ->
                             System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre())
                     );
-                    System.out.print("Selecciona ID tipo de sangre: ");
-                    p.setId_tiposangre(sc.nextInt());
-                    sc.nextLine();
+                    do {
+                        System.out.print("Selecciona ID tipo de sangre (1-8): ");
+                        idTipoSangre = sc.nextInt();
+                        sc.nextLine();
+                        if (idTipoSangre >= 1 && idTipoSangre <= 8) {
+                            valido = true;
+                        } else {
+                            System.out.println("❌ ID inválido, ingresa un número entre 1 y 8");
+                        }
+                    } while (!valido);
+                    p.setId_tiposangre(idTipoSangre);
+
+                    // Correo
+                    String correo;
+                    do {
+                        System.out.print("Correo: ");
+                        correo = sc.nextLine();
+                        if (!correo.contains("@") || (!correo.endsWith(".com") && !correo.endsWith(".net") && !correo.endsWith(".org"))) {
+                            System.out.println("❌ Correo inválido");
+                            correo = null;
+                        }
+                    } while (correo == null);
+                    p.setCorreo(correo);
+
+                    // Teléfono
+                    String tel;
+                    do {
+                        System.out.print("Teléfono (solo números, 11 dígitos): ");
+                        tel = sc.nextLine();
+                        if (!tel.matches("\\d{11}")) {
+                            System.out.println("❌ Teléfono inválido");
+                            tel = null;
+                        }
+                    } while (tel == null);
+                    p.setTelefono(tel);
+
+                    System.out.print("Dirección: ");
+                    p.setDireccion(sc.nextLine());
+
+                    System.out.print("Cargo: ");
+                    p.setCargo(sc.nextLine());
 
                     if (pacienteDAO.crearPaciente(p)) {
                         System.out.println("✅ Paciente creado correctamente");
@@ -103,19 +147,16 @@ public class Main {
 
                 case 2 -> {
                     List<Paciente> lista = pacienteDAO.listarPacientes();
-
                     if (lista.isEmpty()) {
                         System.out.println("No hay pacientes registrados.");
                     } else {
-                        // Encabezado de la tabla
+                        // Encabezado
                         System.out.printf("%-5s %-15s %-15s %-15s %-15s %-12s %-10s %-15s %-25s %-12s %-20s %-15s %-20s%n",
                                 "ID", "TipoDoc", "NroDoc", "Nombres", "Apellidos", "F.Nac", "Sexo", "TipoSangre",
                                 "Correo", "Teléfono", "Dirección", "Cargo", "F.Registro");
 
-                        // Separador
                         System.out.println("------------------------------------------------------------------------------------------------------------------------------------------------------");
 
-                        // Filas
                         for (Paciente p : lista) {
                             String tipoDoc = tipoDocumentoDAO.obtenerTipoDocumentoPorId(p.getId_tipodocumento());
                             String sexo = sexoDAO.obtenerSexoPorId(p.getId_sexo());
@@ -123,13 +164,13 @@ public class Main {
 
                             System.out.printf("%-5d %-15s %-15s %-15s %-15s %-12s %-10s %-15s %-25s %-12s %-20s %-15s %-20s%n",
                                     p.getId_pacientes(),
-                                    tipoDoc != null ? tipoDoc : "N/A",
+                                    tipoDoc,
                                     p.getNumero_documento(),
                                     p.getNombres(),
                                     p.getApellidos(),
                                     p.getFecha_nacimiento(),
-                                    sexo != null ? sexo : "N/A",
-                                    tipoSangre != null ? tipoSangre : "N/A",
+                                    sexo,
+                                    tipoSangre,
                                     p.getCorreo(),
                                     p.getTelefono(),
                                     p.getDireccion(),
@@ -152,9 +193,9 @@ public class Main {
                         System.out.println("ID: " + paciente.getId_pacientes()
                                 + ", Nombre: " + paciente.getNombres() + " " + paciente.getApellidos()
                                 + ", Documento: " + paciente.getNumero_documento()
-                                + ", Tipo Doc: " + (tipoDoc != null ? tipoDoc : "N/A")
-                                + ", Sexo: " + (sexo != null ? sexo : "N/A")
-                                + ", Tipo Sangre: " + (tipoSangre != null ? tipoSangre : "N/A")
+                                + ", Tipo Doc: " + tipoDoc
+                                + ", Sexo: " + sexo
+                                + ", Tipo Sangre: " + tipoSangre
                                 + ", Correo: " + paciente.getCorreo()
                                 + ", Teléfono: " + paciente.getTelefono()
                                 + ", Dirección: " + paciente.getDireccion()
@@ -191,8 +232,30 @@ public class Main {
                             switch (subOpcion) {
                                 case 1 -> paciente.setNombres(sc.nextLine());
                                 case 2 -> paciente.setApellidos(sc.nextLine());
-                                case 3 -> paciente.setCorreo(sc.nextLine());
-                                case 4 -> paciente.setTelefono(sc.nextLine());
+                                case 3 -> {
+                                    String correo;
+                                    do {
+                                        System.out.print("Nuevo correo: ");
+                                        correo = sc.nextLine();
+                                        if (!correo.contains("@") || (!correo.endsWith(".com") && !correo.endsWith(".net") && !correo.endsWith(".org"))) {
+                                            System.out.println("❌ Correo inválido");
+                                            correo = null;
+                                        }
+                                    } while (correo == null);
+                                    paciente.setCorreo(correo);
+                                }
+                                case 4 -> {
+                                    String tel;
+                                    do {
+                                        System.out.print("Nuevo teléfono (11 dígitos): ");
+                                        tel = sc.nextLine();
+                                        if (!tel.matches("\\d{11}")) {
+                                            System.out.println("❌ Teléfono inválido");
+                                            tel = null;
+                                        }
+                                    } while (tel == null);
+                                    paciente.setTelefono(tel);
+                                }
                                 case 5 -> paciente.setDireccion(sc.nextLine());
                                 case 6 -> paciente.setCargo(sc.nextLine());
                                 case 7 -> {
@@ -213,8 +276,19 @@ public class Main {
                                     tipoSangreDAO.listarTiposSangre().forEach(ts ->
                                             System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre())
                                     );
-                                    paciente.setId_tiposangre(sc.nextInt());
-                                    sc.nextLine();
+                                    int nuevoTipoSangre;
+                                    boolean validoTipo = false;
+                                    do {
+                                        System.out.print("Nuevo ID tipo de sangre (1-8): ");
+                                        nuevoTipoSangre = sc.nextInt();
+                                        sc.nextLine();
+                                        if (nuevoTipoSangre >= 1 && nuevoTipoSangre <= 8) {
+                                            validoTipo = true;
+                                        } else {
+                                            System.out.println("❌ ID inválido, ingresa un número entre 1 y 8");
+                                        }
+                                    } while (!validoTipo);
+                                    paciente.setId_tiposangre(nuevoTipoSangre);
                                 }
                                 case 0 -> System.out.println("Saliendo de edición...");
                                 default -> System.out.println("Opción no válida");

@@ -73,7 +73,7 @@ public class PacienteDAO {
         return paciente;
     }
 
-    // 🔹 Obtener paciente por número de documento
+    // Obtener paciente por número de documento
     public Paciente obtenerPacientePorDocumento(String numero_documento) {
         String sql = "SELECT * FROM pacientes WHERE numero_documento = ?";
         Paciente paciente = null;
@@ -187,5 +187,49 @@ public class PacienteDAO {
         }
 
         return lista;
+    }
+
+    // 🔹 Nuevos métodos para obtener nombres en lugar de IDs
+
+    public String getNombreTipoDocumento(int id) {
+        String nombre = "";
+        String sql = "SELECT tipo_documento FROM tipodocumento WHERE id_tipodocumento = ?";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) nombre = rs.getString("tipo_documento");
+        } catch (SQLException e) {
+            System.err.println("Error al obtener tipo de documento: " + e.getMessage());
+        }
+        return nombre;
+    }
+
+    public String getNombreSexo(int id) {
+        String nombre = "";
+        String sql = "SELECT descripcion FROM sexo WHERE id_sexo = ?";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) nombre = rs.getString("descripcion");
+        } catch (SQLException e) {
+            System.err.println("Error al obtener sexo: " + e.getMessage());
+        }
+        return nombre;
+    }
+
+    public String getNombreTipoSangre(int id) {
+        String nombre = "";
+        String sql = "SELECT tipo_sangre FROM tiposangre WHERE id_tiposangre = ?";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) nombre = rs.getString("tipo_sangre");
+        } catch (SQLException e) {
+            System.err.println("Error al obtener tipo de sangre: " + e.getMessage());
+        }
+        return nombre;
     }
 }

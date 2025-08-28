@@ -32,8 +32,7 @@ public final class ConexionBD {
     private ConexionBD() {}
 
     public static Connection getConnection() throws SQLException {
-        Connection conn = DriverManager.getConnection(url, user, pass);
-        System.out.println("✅ Conexión establecida con MySQL");
-        return conn;
+        return DriverManager.getConnection(url, user, pass);
     }
+
 }

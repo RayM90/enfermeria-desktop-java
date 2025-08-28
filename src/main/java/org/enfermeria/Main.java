@@ -1,20 +1,32 @@
 package org.enfermeria.service;
 
+import org.enfermeria.config.ConexionBD;
 import org.enfermeria.dao.PacienteDAO;
 import org.enfermeria.dao.TipoDocumentoDAO;
 import org.enfermeria.dao.SexoDAO;
 import org.enfermeria.dao.TipoSangreDAO;
 import org.enfermeria.model.Paciente;
-import org.enfermeria.model.TipoDocumento;
-import org.enfermeria.model.Sexo;
-import org.enfermeria.model.TipoSangre;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
+
+        // Mensaje de conexión inicial
+        try (Connection conn = ConexionBD.getConnection()) {
+            if (conn != null) {
+                System.out.println("⚙️ Configuración DB cargada correctamente");
+                System.out.println("✅ Conexión establecida con MySQL");
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Error al conectar con la base de datos: " + e.getMessage());
+            return; // salir si no hay conexión
+        }
+
         Scanner sc = new Scanner(System.in);
         PacienteDAO pacienteDAO = new PacienteDAO();
         TipoDocumentoDAO tipoDocumentoDAO = new TipoDocumentoDAO();
@@ -40,11 +52,9 @@ public class Main {
                     Paciente p = new Paciente();
 
                     // Mini-menú TipoDocumento
-                    List<TipoDocumento> listaTD = tipoDocumentoDAO.listarTiposDocumento();
-                    System.out.println("\n--- TIPOS DE DOCUMENTO ---");
-                    for (TipoDocumento td : listaTD) {
-                        System.out.println(td.getId_tipodocumento() + " - " + td.getTipo_documento());
-                    }
+                    tipoDocumentoDAO.listarTiposDocumento().forEach(td ->
+                            System.out.println(td.getId_tipodocumento() + " - " + td.getTipo_documento())
+                    );
                     System.out.print("Selecciona ID tipo documento: ");
                     p.setId_tipodocumento(sc.nextInt());
                     sc.nextLine();
@@ -56,7 +66,6 @@ public class Main {
                     System.out.print("Apellidos: ");
                     p.setApellidos(sc.nextLine());
 
-                    // Nuevos campos
                     System.out.print("Correo: ");
                     p.setCorreo(sc.nextLine());
                     System.out.print("Teléfono: ");
@@ -67,25 +76,20 @@ public class Main {
                     p.setCargo(sc.nextLine());
 
                     System.out.print("Fecha de nacimiento (yyyy-mm-dd): ");
-                    String fecha = sc.nextLine();
-                    p.setFecha_nacimiento(java.sql.Date.valueOf(fecha));
+                    p.setFecha_nacimiento(java.sql.Date.valueOf(sc.nextLine()));
 
                     // Mini-menú Sexo
-                    List<Sexo> listaSexo = sexoDAO.listarSexos();
-                    System.out.println("\n--- SEXO ---");
-                    for (Sexo s : listaSexo) {
-                        System.out.println(s.getId_sexo() + " - " + s.getDescripcion());
-                    }
+                    sexoDAO.listarSexos().forEach(s ->
+                            System.out.println(s.getId_sexo() + " - " + s.getDescripcion())
+                    );
                     System.out.print("Selecciona ID sexo: ");
                     p.setId_sexo(sc.nextInt());
                     sc.nextLine();
 
                     // Mini-menú TipoSangre
-                    List<TipoSangre> listaTS = tipoSangreDAO.listarTiposSangre();
-                    System.out.println("\n--- TIPO DE SANGRE ---");
-                    for (TipoSangre ts : listaTS) {
-                        System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre());
-                    }
+                    tipoSangreDAO.listarTiposSangre().forEach(ts ->
+                            System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre())
+                    );
                     System.out.print("Selecciona ID tipo de sangre: ");
                     p.setId_tiposangre(sc.nextInt());
                     sc.nextLine();
@@ -99,16 +103,40 @@ public class Main {
 
                 case 2 -> {
                     List<Paciente> lista = pacienteDAO.listarPacientes();
-                    System.out.println("\n--- LISTA DE PACIENTES ---");
-                    for (Paciente paciente : lista) {
-                        System.out.println("ID: " + paciente.getId_pacientes()
-                                + ", Nombre: " + paciente.getNombres() + " " + paciente.getApellidos()
-                                + ", Documento: " + paciente.getNumero_documento()
-                                + ", Correo: " + paciente.getCorreo()
-                                + ", Teléfono: " + paciente.getTelefono()
-                                + ", Dirección: " + paciente.getDireccion()
-                                + ", Cargo: " + paciente.getCargo()
-                                + ", Fecha registro: " + paciente.getFecha_registro());
+
+                    if (lista.isEmpty()) {
+                        System.out.println("No hay pacientes registrados.");
+                    } else {
+                        // Encabezado de la tabla
+                        System.out.printf("%-5s %-15s %-15s %-15s %-15s %-12s %-10s %-15s %-25s %-12s %-20s %-15s %-20s%n",
+                                "ID", "TipoDoc", "NroDoc", "Nombres", "Apellidos", "F.Nac", "Sexo", "TipoSangre",
+                                "Correo", "Teléfono", "Dirección", "Cargo", "F.Registro");
+
+                        // Separador
+                        System.out.println("------------------------------------------------------------------------------------------------------------------------------------------------------");
+
+                        // Filas
+                        for (Paciente p : lista) {
+                            String tipoDoc = tipoDocumentoDAO.obtenerTipoDocumentoPorId(p.getId_tipodocumento());
+                            String sexo = sexoDAO.obtenerSexoPorId(p.getId_sexo());
+                            String tipoSangre = tipoSangreDAO.obtenerTipoSangrePorId(p.getId_tiposangre());
+
+                            System.out.printf("%-5d %-15s %-15s %-15s %-15s %-12s %-10s %-15s %-25s %-12s %-20s %-15s %-20s%n",
+                                    p.getId_pacientes(),
+                                    tipoDoc != null ? tipoDoc : "N/A",
+                                    p.getNumero_documento(),
+                                    p.getNombres(),
+                                    p.getApellidos(),
+                                    p.getFecha_nacimiento(),
+                                    sexo != null ? sexo : "N/A",
+                                    tipoSangre != null ? tipoSangre : "N/A",
+                                    p.getCorreo(),
+                                    p.getTelefono(),
+                                    p.getDireccion(),
+                                    p.getCargo(),
+                                    p.getFecha_registro()
+                            );
+                        }
                     }
                 }
 
@@ -117,9 +145,16 @@ public class Main {
                     String doc = sc.nextLine();
                     Paciente paciente = pacienteDAO.obtenerPacientePorDocumento(doc);
                     if (paciente != null) {
+                        String tipoDoc = tipoDocumentoDAO.obtenerTipoDocumentoPorId(paciente.getId_tipodocumento());
+                        String sexo = sexoDAO.obtenerSexoPorId(paciente.getId_sexo());
+                        String tipoSangre = tipoSangreDAO.obtenerTipoSangrePorId(paciente.getId_tiposangre());
+
                         System.out.println("ID: " + paciente.getId_pacientes()
                                 + ", Nombre: " + paciente.getNombres() + " " + paciente.getApellidos()
                                 + ", Documento: " + paciente.getNumero_documento()
+                                + ", Tipo Doc: " + (tipoDoc != null ? tipoDoc : "N/A")
+                                + ", Sexo: " + (sexo != null ? sexo : "N/A")
+                                + ", Tipo Sangre: " + (tipoSangre != null ? tipoSangre : "N/A")
                                 + ", Correo: " + paciente.getCorreo()
                                 + ", Teléfono: " + paciente.getTelefono()
                                 + ", Dirección: " + paciente.getDireccion()
@@ -154,39 +189,30 @@ public class Main {
                             sc.nextLine();
 
                             switch (subOpcion) {
-                                case 1 -> { System.out.print("Nuevo nombre: "); paciente.setNombres(sc.nextLine()); }
-                                case 2 -> { System.out.print("Nuevo apellido: "); paciente.setApellidos(sc.nextLine()); }
-                                case 3 -> { System.out.print("Nuevo correo: "); paciente.setCorreo(sc.nextLine()); }
-                                case 4 -> { System.out.print("Nuevo teléfono: "); paciente.setTelefono(sc.nextLine()); }
-                                case 5 -> { System.out.print("Nueva dirección: "); paciente.setDireccion(sc.nextLine()); }
-                                case 6 -> { System.out.print("Nuevo cargo: "); paciente.setCargo(sc.nextLine()); }
+                                case 1 -> paciente.setNombres(sc.nextLine());
+                                case 2 -> paciente.setApellidos(sc.nextLine());
+                                case 3 -> paciente.setCorreo(sc.nextLine());
+                                case 4 -> paciente.setTelefono(sc.nextLine());
+                                case 5 -> paciente.setDireccion(sc.nextLine());
+                                case 6 -> paciente.setCargo(sc.nextLine());
                                 case 7 -> {
-                                    List<TipoDocumento> listaTD = tipoDocumentoDAO.listarTiposDocumento();
-                                    System.out.println("\n--- TIPOS DE DOCUMENTO ---");
-                                    for (TipoDocumento td : listaTD) {
-                                        System.out.println(td.getId_tipodocumento() + " - " + td.getTipo_documento());
-                                    }
-                                    System.out.print("Selecciona nuevo ID tipo documento: ");
+                                    tipoDocumentoDAO.listarTiposDocumento().forEach(td ->
+                                            System.out.println(td.getId_tipodocumento() + " - " + td.getTipo_documento())
+                                    );
                                     paciente.setId_tipodocumento(sc.nextInt());
                                     sc.nextLine();
                                 }
                                 case 8 -> {
-                                    List<Sexo> listaSexo = sexoDAO.listarSexos();
-                                    System.out.println("\n--- SEXO ---");
-                                    for (Sexo s : listaSexo) {
-                                        System.out.println(s.getId_sexo() + " - " + s.getDescripcion());
-                                    }
-                                    System.out.print("Selecciona nuevo ID sexo: ");
+                                    sexoDAO.listarSexos().forEach(s ->
+                                            System.out.println(s.getId_sexo() + " - " + s.getDescripcion())
+                                    );
                                     paciente.setId_sexo(sc.nextInt());
                                     sc.nextLine();
                                 }
                                 case 9 -> {
-                                    List<TipoSangre> listaTS = tipoSangreDAO.listarTiposSangre();
-                                    System.out.println("\n--- TIPO DE SANGRE ---");
-                                    for (TipoSangre ts : listaTS) {
-                                        System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre());
-                                    }
-                                    System.out.print("Selecciona nuevo ID tipo de sangre: ");
+                                    tipoSangreDAO.listarTiposSangre().forEach(ts ->
+                                            System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre())
+                                    );
                                     paciente.setId_tiposangre(sc.nextInt());
                                     sc.nextLine();
                                 }

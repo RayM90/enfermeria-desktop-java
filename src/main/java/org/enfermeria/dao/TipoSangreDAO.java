@@ -11,6 +11,7 @@ import java.util.List;
 
 public class TipoSangreDAO {
 
+    // Listar todos los tipos de sangre
     public List<TipoSangre> listarTiposSangre() {
         List<TipoSangre> lista = new ArrayList<>();
         String sql = "SELECT * FROM tipo_sangre";
@@ -31,5 +32,27 @@ public class TipoSangreDAO {
         }
 
         return lista;
+    }
+
+    // Obtener tipo de sangre por ID
+    public String obtenerTipoSangrePorId(int id) {
+        String sql = "SELECT tipo_sangre FROM tipo_sangre WHERE id_tiposangre = ?";
+        String tipo = null;
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                tipo = rs.getString("tipo_sangre");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al obtener tipo de sangre por ID: " + e.getMessage());
+        }
+
+        return tipo != null ? tipo : "Desconocido";
     }
 }

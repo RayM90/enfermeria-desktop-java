@@ -11,6 +11,7 @@ import java.util.List;
 
 public class SexoDAO {
 
+    // Listar todos los sexos
     public List<Sexo> listarSexos() {
         List<Sexo> lista = new ArrayList<>();
         String sql = "SELECT * FROM sexo";
@@ -31,5 +32,27 @@ public class SexoDAO {
         }
 
         return lista;
+    }
+
+    // Obtener descripción de sexo por ID
+    public String obtenerSexoPorId(int id) {
+        String sql = "SELECT descripcion FROM sexo WHERE id_sexo = ?";
+        String descripcion = null;
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                descripcion = rs.getString("descripcion");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al obtener sexo por ID: " + e.getMessage());
+        }
+
+        return descripcion != null ? descripcion : "Desconocido";
     }
 }

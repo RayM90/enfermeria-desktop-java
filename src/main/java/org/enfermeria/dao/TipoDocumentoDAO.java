@@ -11,6 +11,7 @@ import java.util.List;
 
 public class TipoDocumentoDAO {
 
+    // Listar todos los tipos de documento
     public List<TipoDocumento> listarTiposDocumento() {
         List<TipoDocumento> lista = new ArrayList<>();
         String sql = "SELECT * FROM tipo_documento";
@@ -31,5 +32,27 @@ public class TipoDocumentoDAO {
         }
 
         return lista;
+    }
+
+    // Obtener tipo de documento por ID
+    public String obtenerTipoDocumentoPorId(int id) {
+        String sql = "SELECT tipo_documento FROM tipo_documento WHERE id_tipodocumento = ?";
+        String tipo = null;
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                tipo = rs.getString("tipo_documento");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al obtener tipo de documento por ID: " + e.getMessage());
+        }
+
+        return tipo != null ? tipo : "Desconocido";
     }
 }

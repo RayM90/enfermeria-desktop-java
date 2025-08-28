@@ -25,7 +25,7 @@ public class Main {
             }
         } catch (SQLException e) {
             System.err.println("❌ Error al conectar con la base de datos: " + e.getMessage());
-            return; // salir si no hay conexión
+            return;
         }
 
         Scanner sc = new Scanner(System.in);
@@ -35,7 +35,6 @@ public class Main {
         TipoSangreDAO tipoSangreDAO = new TipoSangreDAO();
 
         int opcion;
-
         do {
             System.out.println("\n=== MENÚ PACIENTES ===");
             System.out.println("1. Crear paciente");
@@ -46,7 +45,7 @@ public class Main {
             System.out.println("0. Salir");
             System.out.print("Selecciona una opción: ");
             opcion = sc.nextInt();
-            sc.nextLine(); // limpiar buffer
+            sc.nextLine();
 
             switch (opcion) {
                 case 1 -> {
@@ -60,8 +59,17 @@ public class Main {
                     p.setId_tipodocumento(sc.nextInt());
                     sc.nextLine();
 
-                    System.out.print("Número de documento: ");
-                    p.setNumero_documento(sc.nextLine());
+                    // Número de documento único
+                    String nroDoc;
+                    do {
+                        System.out.print("Número de documento: ");
+                        nroDoc = sc.nextLine();
+                        if (pacienteDAO.obtenerPacientePorDocumento(nroDoc) != null) {
+                            System.out.println("❌ Este número de documento ya está registrado. Intenta otro.");
+                            nroDoc = null;
+                        }
+                    } while (nroDoc == null);
+                    p.setNumero_documento(nroDoc);
 
                     System.out.print("Nombres: ");
                     p.setNombres(sc.nextLine());
@@ -69,7 +77,7 @@ public class Main {
                     System.out.print("Apellidos: ");
                     p.setApellidos(sc.nextLine());
 
-                    // Fecha de nacimiento validada
+                    // Fecha nacimiento
                     Date fechaNac = null;
                     while (fechaNac == null) {
                         System.out.print("Fecha de nacimiento (yyyy-mm-dd): ");
@@ -77,7 +85,7 @@ public class Main {
                         try {
                             fechaNac = Date.valueOf(fechaStr);
                         } catch (IllegalArgumentException e) {
-                            System.out.println("❌ Formato de fecha incorrecto. Usa yyyy-mm-dd");
+                            System.out.println("❌ Formato de fecha incorrecto");
                         }
                     }
                     p.setFecha_nacimiento(fechaNac);
@@ -90,23 +98,20 @@ public class Main {
                     p.setId_sexo(sc.nextInt());
                     sc.nextLine();
 
-                    // Tipo de sangre con validación
-                    int idTipoSangre = 0;
-                    boolean valido = false;
-                    tipoSangreDAO.listarTiposSangre().forEach(ts ->
-                            System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre())
-                    );
+                    // Tipo de sangre (validado 1-8)
+                    int tipoSangreId;
                     do {
-                        System.out.print("Selecciona ID tipo de sangre (1-8): ");
-                        idTipoSangre = sc.nextInt();
+                        tipoSangreDAO.listarTiposSangre().forEach(ts ->
+                                System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre())
+                        );
+                        System.out.print("Selecciona ID tipo de sangre: ");
+                        tipoSangreId = sc.nextInt();
                         sc.nextLine();
-                        if (idTipoSangre >= 1 && idTipoSangre <= 8) {
-                            valido = true;
-                        } else {
-                            System.out.println("❌ ID inválido, ingresa un número entre 1 y 8");
+                        if (tipoSangreId < 1 || tipoSangreId > 8) {
+                            System.out.println("❌ Opción inválida. Debe ser entre 1 y 8");
                         }
-                    } while (!valido);
-                    p.setId_tiposangre(idTipoSangre);
+                    } while (tipoSangreId < 1 || tipoSangreId > 8);
+                    p.setId_tiposangre(tipoSangreId);
 
                     // Correo
                     String correo;
@@ -123,7 +128,7 @@ public class Main {
                     // Teléfono
                     String tel;
                     do {
-                        System.out.print("Teléfono (solo números, 11 dígitos): ");
+                        System.out.print("Teléfono (11 dígitos): ");
                         tel = sc.nextLine();
                         if (!tel.matches("\\d{11}")) {
                             System.out.println("❌ Teléfono inválido");
@@ -182,7 +187,7 @@ public class Main {
                 }
 
                 case 3 -> {
-                    System.out.print("Ingresa número de documento del paciente: ");
+                    System.out.print("Ingresa número de documento: ");
                     String doc = sc.nextLine();
                     Paciente paciente = pacienteDAO.obtenerPacientePorDocumento(doc);
                     if (paciente != null) {
@@ -225,7 +230,7 @@ public class Main {
                             System.out.println("8. Sexo");
                             System.out.println("9. Tipo de sangre");
                             System.out.println("0. Salir");
-                            System.out.print("Selecciona el campo a editar: ");
+                            System.out.print("Selecciona el campo: ");
                             subOpcion = sc.nextInt();
                             sc.nextLine();
 
@@ -273,22 +278,19 @@ public class Main {
                                     sc.nextLine();
                                 }
                                 case 9 -> {
-                                    tipoSangreDAO.listarTiposSangre().forEach(ts ->
-                                            System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre())
-                                    );
-                                    int nuevoTipoSangre;
-                                    boolean validoTipo = false;
+                                    int tipoSangreId;
                                     do {
-                                        System.out.print("Nuevo ID tipo de sangre (1-8): ");
-                                        nuevoTipoSangre = sc.nextInt();
+                                        tipoSangreDAO.listarTiposSangre().forEach(ts ->
+                                                System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre())
+                                        );
+                                        System.out.print("Selecciona ID tipo de sangre: ");
+                                        tipoSangreId = sc.nextInt();
                                         sc.nextLine();
-                                        if (nuevoTipoSangre >= 1 && nuevoTipoSangre <= 8) {
-                                            validoTipo = true;
-                                        } else {
-                                            System.out.println("❌ ID inválido, ingresa un número entre 1 y 8");
+                                        if (tipoSangreId < 1 || tipoSangreId > 8) {
+                                            System.out.println("❌ Opción inválida, 1-8");
                                         }
-                                    } while (!validoTipo);
-                                    paciente.setId_tiposangre(nuevoTipoSangre);
+                                    } while (tipoSangreId < 1 || tipoSangreId > 8);
+                                    paciente.setId_tiposangre(tipoSangreId);
                                 }
                                 case 0 -> System.out.println("Saliendo de edición...");
                                 default -> System.out.println("Opción no válida");
@@ -300,7 +302,6 @@ public class Main {
                         } else {
                             System.out.println("❌ Error al actualizar paciente");
                         }
-
                     } else {
                         System.out.println("❌ Paciente no encontrado");
                     }

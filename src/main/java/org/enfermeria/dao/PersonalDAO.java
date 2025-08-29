@@ -24,11 +24,12 @@ public class PersonalDAO {
             ps.setString(5, p.getEspecialidad());
             ps.setString(6, p.getCorreo());
             ps.setString(7, p.getTelefono());
-            ps.setDate(8, new java.sql.Date(p.getFecha_contratacion().getTime()));
-            ps.setDate(9, new java.sql.Date(p.getFecha_nacimiento().getTime()));
 
-            int filas = ps.executeUpdate();
-            return filas > 0;
+            // Manejo seguro de fechas
+            ps.setDate(8, p.getFecha_contratacion());
+            ps.setDate(9, p.getFecha_nacimiento());
+
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
             System.err.println("Error al crear personal: " + e.getMessage());
@@ -45,25 +46,26 @@ public class PersonalDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                personal = new Personal(
-                        rs.getInt("id_personal"),
-                        rs.getInt("id_tipodocumento"),
-                        rs.getString("numero_documento"),
-                        rs.getString("nombres"),
-                        rs.getString("apellidos"),
-                        rs.getString("especialidad"),
-                        rs.getString("correo"),
-                        rs.getString("telefono"),
-                        rs.getDate("fecha_contratacion"),
-                        rs.getDate("fecha_nacimiento")
-                );
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    personal = new Personal(
+                            rs.getInt("id_personal"),
+                            rs.getInt("id_tipodocumento"),
+                            rs.getString("numero_documento"),
+                            rs.getString("nombres"),
+                            rs.getString("apellidos"),
+                            rs.getString("especialidad"),
+                            rs.getString("correo"),
+                            rs.getString("telefono"),
+                            rs.getDate("fecha_contratacion"),
+                            rs.getDate("fecha_nacimiento")
+                    );
+                }
             }
 
         } catch (SQLException e) {
-            System.err.println("Error al obtener personal: " + e.getMessage());
+            System.err.println("Error al obtener personal por ID: " + e.getMessage());
         }
 
         return personal;
@@ -84,12 +86,11 @@ public class PersonalDAO {
             ps.setString(5, p.getEspecialidad());
             ps.setString(6, p.getCorreo());
             ps.setString(7, p.getTelefono());
-            ps.setDate(8, new java.sql.Date(p.getFecha_contratacion().getTime()));
-            ps.setDate(9, new java.sql.Date(p.getFecha_nacimiento().getTime()));
+            ps.setDate(8, p.getFecha_contratacion());
+            ps.setDate(9, p.getFecha_nacimiento());
             ps.setInt(10, p.getId_personal());
 
-            int filas = ps.executeUpdate();
-            return filas > 0;
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
             System.err.println("Error al actualizar personal: " + e.getMessage());
@@ -105,8 +106,7 @@ public class PersonalDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
-            int filas = ps.executeUpdate();
-            return filas > 0;
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
             System.err.println("Error al eliminar personal: " + e.getMessage());

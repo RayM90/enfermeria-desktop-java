@@ -6,6 +6,7 @@ import org.enfermeria.model.Paciente;
 import org.enfermeria.model.Personal;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
@@ -160,9 +161,12 @@ public class Main {
     private static void crearPersonalInteractivo(Scanner sc, PersonalDAO personalDAO, TipoDocumentoDAO tipoDocumentoDAO) {
         Personal p = new Personal();
 
-        // Tipo documento
-        tipoDocumentoDAO.listarTiposDocumento().forEach(td -> System.out.println(td.getId_tipodocumento() + " - " + td.getTipo_documento()));
-        System.out.print("Selecciona ID tipo documento: "); p.setId_tipodocumento(sc.nextInt()); sc.nextLine();
+        tipoDocumentoDAO.listarTiposDocumento().forEach(td ->
+                System.out.println(td.getId_tipodocumento() + " - " + td.getTipo_documento())
+        );
+        System.out.print("Selecciona ID tipo documento: ");
+        p.setId_tipodocumento(sc.nextInt());
+        sc.nextLine();
 
         System.out.print("Número de documento: "); p.setNumero_documento(sc.nextLine());
         System.out.print("Nombres: "); p.setNombres(sc.nextLine());
@@ -171,10 +175,14 @@ public class Main {
         System.out.print("Correo: "); p.setCorreo(sc.nextLine());
         System.out.print("Teléfono: "); p.setTelefono(sc.nextLine());
 
-        System.out.print("Fecha de contratación (yyyy-mm-dd): ");
-        p.setFecha_contratacion(java.sql.Date.valueOf(sc.nextLine()));
-        System.out.print("Fecha de nacimiento (yyyy-mm-dd): ");
-        p.setFecha_nacimiento(java.sql.Date.valueOf(sc.nextLine()));
+        // Fechas opcionales
+        System.out.print("Fecha de contratación (yyyy-mm-dd, dejar vacío si no aplica): ");
+        String fc = sc.nextLine().trim();
+        p.setFecha_contratacion(fc.isEmpty() ? null : Date.valueOf(fc));
+
+        System.out.print("Fecha de nacimiento (yyyy-mm-dd, dejar vacío si no aplica): ");
+        String fn = sc.nextLine().trim();
+        p.setFecha_nacimiento(fn.isEmpty() ? null : Date.valueOf(fn));
 
         if(personalDAO.crearPersonal(p)) System.out.println("✅ Personal creado correctamente");
         else System.out.println("❌ Error al crear personal");
@@ -192,7 +200,8 @@ public class Main {
             String tipoDoc = tipoDocumentoDAO.obtenerTipoDocumentoPorId(p.getId_tipodocumento());
             System.out.printf("%-5d %-15s %-15s %-15s %-15s %-20s %-15s %-15s %-12s%n",
                     p.getId_personal(), tipoDoc, p.getNumero_documento(), p.getNombres(),
-                    p.getApellidos(), p.getEspecialidad(), p.getCorreo(), p.getTelefono(), p.getFecha_contratacion());
+                    p.getApellidos(), p.getEspecialidad(), p.getCorreo(), p.getTelefono(),
+                    p.getFecha_contratacion() == null ? "-" : p.getFecha_contratacion());
         }
     }
 
@@ -209,6 +218,15 @@ public class Main {
         System.out.print("Especialidad [" + p.getEspecialidad() + "]: "); String esp = sc.nextLine(); if (!esp.isBlank()) p.setEspecialidad(esp);
         System.out.print("Correo [" + p.getCorreo() + "]: "); String correo = sc.nextLine(); if (!correo.isBlank()) p.setCorreo(correo);
         System.out.print("Teléfono [" + p.getTelefono() + "]: "); String tel = sc.nextLine(); if (!tel.isBlank()) p.setTelefono(tel);
+
+        // Fechas opcionales
+        System.out.print("Fecha de contratación [" + (p.getFecha_contratacion() == null ? "-" : p.getFecha_contratacion()) + "]: ");
+        String fc = sc.nextLine().trim();
+        if (!fc.isEmpty()) p.setFecha_contratacion(Date.valueOf(fc));
+
+        System.out.print("Fecha de nacimiento [" + (p.getFecha_nacimiento() == null ? "-" : p.getFecha_nacimiento()) + "]: ");
+        String fn = sc.nextLine().trim();
+        if (!fn.isEmpty()) p.setFecha_nacimiento(Date.valueOf(fn));
 
         if(personalDAO.actualizarPersonal(p)) System.out.println("✅ Personal actualizado correctamente");
         else System.out.println("❌ Error al actualizar personal");

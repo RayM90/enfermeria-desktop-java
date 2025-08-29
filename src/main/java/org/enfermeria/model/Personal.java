@@ -1,6 +1,6 @@
 package org.enfermeria.model;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Personal {
 

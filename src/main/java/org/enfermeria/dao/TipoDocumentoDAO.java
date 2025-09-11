@@ -36,23 +36,38 @@ public class TipoDocumentoDAO {
 
     // Obtener tipo de documento por ID
     public String obtenerTipoDocumentoPorId(int id) {
+        String tipo = "Desconocido";
         String sql = "SELECT tipo_documento FROM tipo_documento WHERE id_tipodocumento = ?";
-        String tipo = null;
 
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                tipo = rs.getString("tipo_documento");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    tipo = rs.getString("tipo_documento");
+                }
             }
 
         } catch (Exception e) {
             System.out.println("Error al obtener tipo de documento por ID: " + e.getMessage());
         }
 
-        return tipo != null ? tipo : "Desconocido";
+        return tipo;
+    }
+
+    // Método interactivo para mostrar todos los tipos de documento
+    public void mostrarTiposDocumento() {
+        List<TipoDocumento> lista = listarTiposDocumento();
+        if (lista.isEmpty()) {
+            System.out.println("No hay tipos de documento registrados.");
+            return;
+        }
+
+        System.out.println("ID - Tipo de Documento");
+        System.out.println("---------------------");
+        for (TipoDocumento td : lista) {
+            System.out.println(td.getId_tipodocumento() + " - " + td.getTipo_documento());
+        }
     }
 }

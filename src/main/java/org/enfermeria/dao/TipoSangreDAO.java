@@ -36,23 +36,38 @@ public class TipoSangreDAO {
 
     // Obtener tipo de sangre por ID
     public String obtenerTipoSangrePorId(int id) {
+        String tipo = "Desconocido";
         String sql = "SELECT tipo_sangre FROM tipo_sangre WHERE id_tiposangre = ?";
-        String tipo = null;
 
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                tipo = rs.getString("tipo_sangre");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    tipo = rs.getString("tipo_sangre");
+                }
             }
 
         } catch (Exception e) {
             System.out.println("Error al obtener tipo de sangre por ID: " + e.getMessage());
         }
 
-        return tipo != null ? tipo : "Desconocido";
+        return tipo;
+    }
+
+    // Método interactivo para mostrar todos los tipos de sangre
+    public void mostrarTiposSangre() {
+        List<TipoSangre> lista = listarTiposSangre();
+        if (lista.isEmpty()) {
+            System.out.println("No hay tipos de sangre registrados.");
+            return;
+        }
+
+        System.out.println("ID - Tipo de Sangre");
+        System.out.println("------------------");
+        for (TipoSangre ts : lista) {
+            System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre());
+        }
     }
 }

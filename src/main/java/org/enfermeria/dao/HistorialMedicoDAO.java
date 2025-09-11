@@ -8,7 +8,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class HistorialMedicoDAO {
 
@@ -163,7 +162,7 @@ public class HistorialMedicoDAO {
         do {
             System.out.print("Selecciona ID del paciente: ");
             idPaciente = sc.nextInt(); sc.nextLine();
-            int finalIdPaciente = idPaciente; // variable final para lambda si se necesitara
+            int finalIdPaciente = idPaciente;
             valido = listaPacientes.stream().anyMatch(p -> p.getId_pacientes() == finalIdPaciente);
             if (!valido) System.out.println("❌ ID inválido");
         } while (!valido);
@@ -195,4 +194,41 @@ public class HistorialMedicoDAO {
         }
     }
 
-} // fin clase
+    public void actualizarHistorialInteractivo(Scanner sc, HistorialMedico h) {
+        System.out.println("Dejar en blanco para no modificar el campo.");
+
+        System.out.print("Diagnóstico [" + h.getDiagnostico() + "]: ");
+        String diag = sc.nextLine();
+        if (!diag.isBlank()) h.setDiagnostico(diag);
+
+        System.out.print("Tratamiento [" + h.getTratamiento() + "]: ");
+        String trat = sc.nextLine();
+        if (!trat.isBlank()) h.setTratamiento(trat);
+
+        System.out.print("Alergias [" + h.getAlergias() + "]: ");
+        String alerg = sc.nextLine();
+        if (!alerg.isBlank()) h.setAlergias(alerg);
+
+        System.out.print("Condiciones médicas previas [" + h.getCondicionesMedicasPrevias() + "]: ");
+        String cond = sc.nextLine();
+        if (!cond.isBlank()) h.setCondicionesMedicasPrevias(cond);
+
+        System.out.print("Medicamentos actuales [" + h.getMedicamentosActuales() + "]: ");
+        String med = sc.nextLine();
+        if (!med.isBlank()) h.setMedicamentosActuales(med);
+
+        System.out.print("Fecha registro [" + (h.getFechaRegistro() == null ? "-" : h.getFechaRegistro()) + "]: ");
+        String f = sc.nextLine().trim();
+        if (!f.isEmpty()) h.setFechaRegistro(Date.valueOf(f));
+
+        if (actualizarHistorial(h)) System.out.println("✅ Historial actualizado correctamente");
+        else System.out.println("❌ Error al actualizar historial");
+    }
+
+    public void eliminarHistorialInteractivo(Scanner sc) {
+        System.out.print("Ingrese ID del historial a eliminar: ");
+        int id = sc.nextInt(); sc.nextLine();
+        if (eliminarHistorial(id)) System.out.println("✅ Historial eliminado");
+        else System.out.println("❌ No se pudo eliminar historial");
+    }
+}

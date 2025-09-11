@@ -2,6 +2,9 @@ package org.enfermeria.dao;
 
 import org.enfermeria.config.ConexionBD;
 import org.enfermeria.model.Paciente;
+import org.enfermeria.model.TipoDocumento;
+import org.enfermeria.model.Sexo;
+import org.enfermeria.model.TipoSangre;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -144,56 +147,13 @@ public class PacienteDAO {
         return lista;
     }
 
-    // ================= Métodos auxiliares =================
-    public String getNombreTipoDocumento(int id) {
-        String nombre = "";
-        String sql = "SELECT tipo_documento FROM tipodocumento WHERE id_tipodocumento=?";
-        try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) nombre = rs.getString("tipo_documento");
-        } catch (SQLException e) {
-            System.err.println("Error al obtener tipo de documento: " + e.getMessage());
-        }
-        return nombre;
-    }
-
-    public String getNombreSexo(int id) {
-        String nombre = "";
-        String sql = "SELECT descripcion FROM sexo WHERE id_sexo=?";
-        try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) nombre = rs.getString("descripcion");
-        } catch (SQLException e) {
-            System.err.println("Error al obtener sexo: " + e.getMessage());
-        }
-        return nombre;
-    }
-
-    public String getNombreTipoSangre(int id) {
-        String nombre = "";
-        String sql = "SELECT tipo_sangre FROM tiposangre WHERE id_tiposangre=?";
-        try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) nombre = rs.getString("tipo_sangre");
-        } catch (SQLException e) {
-            System.err.println("Error al obtener tipo de sangre: " + e.getMessage());
-        }
-        return nombre;
-    }
-
     // ================= Métodos interactivos =================
     public void crearPacienteInteractivo(Scanner sc, TipoDocumentoDAO tdDAO, SexoDAO sexoDAO, TipoSangreDAO tsDAO) {
         Paciente p = new Paciente();
 
         // Tipo documento
         tdDAO.listarTiposDocumento().forEach(td -> System.out.println(td.getId_tipodocumento() + " - " + td.getTipo_documento()));
-        System.out.print("Selecciona ID tipo documento: "); p.setId_tipodocumento(sc.nextInt()); sc.nextLine();
+        System.out.print("Selecciona ID tipo documento: "); p.setId_tipodocumento(Integer.parseInt(sc.nextLine()));
 
         // Número de documento único
         String nroDoc;
@@ -220,13 +180,13 @@ public class PacienteDAO {
 
         // Sexo
         sexoDAO.listarSexos().forEach(s -> System.out.println(s.getId_sexo() + " - " + s.getDescripcion()));
-        System.out.print("Selecciona ID sexo: "); p.setId_sexo(sc.nextInt()); sc.nextLine();
+        System.out.print("Selecciona ID sexo: "); p.setId_sexo(Integer.parseInt(sc.nextLine()));
 
         // Tipo de sangre
         int tipoSangreId;
         do {
             tsDAO.listarTiposSangre().forEach(ts -> System.out.println(ts.getId_tiposangre() + " - " + ts.getTipo_sangre()));
-            System.out.print("Selecciona ID tipo de sangre: "); tipoSangreId = sc.nextInt(); sc.nextLine();
+            System.out.print("Selecciona ID tipo de sangre: "); tipoSangreId = Integer.parseInt(sc.nextLine());
             if (tipoSangreId < 1 || tipoSangreId > 8) System.out.println("❌ Opción inválida");
         } while (tipoSangreId < 1 || tipoSangreId > 8);
         p.setId_tiposangre(tipoSangreId);

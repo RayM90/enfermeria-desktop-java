@@ -36,23 +36,38 @@ public class SexoDAO {
 
     // Obtener descripción de sexo por ID
     public String obtenerSexoPorId(int id) {
+        String descripcion = "Desconocido";
         String sql = "SELECT descripcion FROM sexo WHERE id_sexo = ?";
-        String descripcion = null;
 
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                descripcion = rs.getString("descripcion");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    descripcion = rs.getString("descripcion");
+                }
             }
 
         } catch (Exception e) {
             System.out.println("Error al obtener sexo por ID: " + e.getMessage());
         }
 
-        return descripcion != null ? descripcion : "Desconocido";
+        return descripcion;
+    }
+
+    // Método interactivo para mostrar todos los sexos
+    public void mostrarSexos() {
+        List<Sexo> lista = listarSexos();
+        if (lista.isEmpty()) {
+            System.out.println("No hay sexos registrados.");
+            return;
+        }
+
+        System.out.println("ID - Sexo");
+        System.out.println("---------");
+        for (Sexo s : lista) {
+            System.out.println(s.getId_sexo() + " - " + s.getDescripcion());
+        }
     }
 }

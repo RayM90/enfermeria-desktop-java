@@ -1,42 +1,28 @@
-package org.enfermeria.service;
+package org.enfermeria.main;
 
-import org.enfermeria.config.ConexionBD;
 import org.enfermeria.dao.*;
 import org.enfermeria.model.Paciente;
 import org.enfermeria.model.Personal;
 
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
-
-        // ================= Conexión inicial =================
-        try (Connection conn = ConexionBD.getConnection()) {
-            if (conn != null) {
-                System.out.println("⚙️ Configuración DB cargada correctamente");
-                System.out.println("✅ Conexión establecida con MySQL");
-            }
-        } catch (SQLException e) {
-            System.err.println("❌ Error al conectar con la base de datos: " + e.getMessage());
-            return;
-        }
-
         Scanner sc = new Scanner(System.in);
 
-        // ================= DAOs =================
+        // DAOs
         PacienteDAO pacienteDAO = new PacienteDAO();
-        TipoDocumentoDAO tipoDocumentoDAO = new TipoDocumentoDAO();
-        SexoDAO sexoDAO = new SexoDAO();
-        TipoSangreDAO tipoSangreDAO = new TipoSangreDAO();
-        HistorialMedicoDAO historialDAO = new HistorialMedicoDAO();
         PersonalDAO personalDAO = new PersonalDAO();
+        TipoDocumentoDAO tdDAO = new TipoDocumentoDAO();
+        SexoDAO sexoDAO = new SexoDAO();
+        TipoSangreDAO tsDAO = new TipoSangreDAO();
+        HistorialMedicoDAO historialDAO = new HistorialMedicoDAO();
 
-        int opcionPrincipal;
+        int opcionPrincipal = -1;
+
         do {
             System.out.println("\n=== MENÚ PRINCIPAL ===");
             System.out.println("1. Pacientes");
@@ -44,15 +30,20 @@ public class Main {
             System.out.println("3. Personal");
             System.out.println("0. Salir");
             System.out.print("Selecciona una opción: ");
-            opcionPrincipal = sc.nextInt();
-            sc.nextLine();
+
+            try {
+                opcionPrincipal = Integer.parseInt(sc.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Opción inválida, ingresa un número.");
+                continue;
+            }
 
             switch (opcionPrincipal) {
-                case 1 -> menuPacientes(sc, pacienteDAO, tipoDocumentoDAO, sexoDAO, tipoSangreDAO);
+                case 1 -> menuPacientes(sc, pacienteDAO, tdDAO, sexoDAO, tsDAO);
                 case 2 -> menuHistorialMedico(sc, historialDAO, pacienteDAO);
-                case 3 -> menuPersonal(sc, personalDAO, tipoDocumentoDAO);
-                case 0 -> System.out.println("Saliendo...");
-                default -> System.out.println("Opción no válida");
+                case 3 -> menuPersonal(sc, personalDAO, tdDAO);
+                case 0 -> System.out.println("Saliendo del sistema... 👋");
+                default -> System.out.println("❌ Opción no válida, intenta de nuevo.");
             }
 
         } while (opcionPrincipal != 0);
@@ -62,9 +53,9 @@ public class Main {
 
     // ================= Menú Pacientes =================
     private static void menuPacientes(Scanner sc, PacienteDAO pacienteDAO,
-                                      TipoDocumentoDAO tipoDocumentoDAO, SexoDAO sexoDAO,
-                                      TipoSangreDAO tipoSangreDAO) {
-        int opcion;
+                                      TipoDocumentoDAO tdDAO, SexoDAO sexoDAO,
+                                      TipoSangreDAO tsDAO) {
+        int opcion = -1;
         do {
             System.out.println("\n=== MENÚ PACIENTES ===");
             System.out.println("1. Crear paciente");
@@ -74,17 +65,22 @@ public class Main {
             System.out.println("5. Eliminar paciente");
             System.out.println("0. Volver al menú principal");
             System.out.print("Selecciona una opción: ");
-            opcion = sc.nextInt();
-            sc.nextLine();
+
+            try {
+                opcion = Integer.parseInt(sc.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Opción inválida, ingresa un número.");
+                continue;
+            }
 
             switch (opcion) {
-                case 1 -> pacienteDAO.crearPacienteInteractivo(sc, tipoDocumentoDAO, sexoDAO, tipoSangreDAO);
-                case 2 -> pacienteDAO.listarPacientesInteractivo(tipoDocumentoDAO, sexoDAO, tipoSangreDAO);
-                case 3 -> pacienteDAO.buscarPacienteInteractivo(sc, tipoDocumentoDAO, sexoDAO, tipoSangreDAO);
-                case 4 -> pacienteDAO.editarPacienteInteractivo(sc, tipoDocumentoDAO, sexoDAO, tipoSangreDAO);
+                case 1 -> pacienteDAO.crearPacienteInteractivo(sc, tdDAO, sexoDAO, tsDAO);
+                case 2 -> pacienteDAO.listarPacientesInteractivo(tdDAO, sexoDAO, tsDAO);
+                case 3 -> pacienteDAO.buscarPacienteInteractivo(sc, tdDAO, sexoDAO, tsDAO);
+                case 4 -> pacienteDAO.editarPacienteInteractivo(sc, tdDAO, sexoDAO, tsDAO);
                 case 5 -> pacienteDAO.eliminarPacienteInteractivo(sc);
                 case 0 -> System.out.println("Volviendo al menú principal...");
-                default -> System.out.println("Opción no válida");
+                default -> System.out.println("❌ Opción no válida");
             }
 
         } while (opcion != 0);
@@ -92,7 +88,7 @@ public class Main {
 
     // ================= Menú Historial Médico =================
     private static void menuHistorialMedico(Scanner sc, HistorialMedicoDAO historialDAO, PacienteDAO pacienteDAO) {
-        int opcion;
+        int opcion = -1;
         do {
             System.out.println("\n=== MENÚ HISTORIAL MÉDICO ===");
             System.out.println("1. Crear historial médico");
@@ -101,39 +97,43 @@ public class Main {
             System.out.println("4. Eliminar historial médico");
             System.out.println("0. Volver al menú principal");
             System.out.print("Selecciona una opción: ");
-            opcion = sc.nextInt();
-            sc.nextLine();
+
+            try {
+                opcion = Integer.parseInt(sc.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Opción inválida, ingresa un número.");
+                continue;
+            }
 
             switch (opcion) {
                 case 1 -> historialDAO.crearHistorialInteractivo(sc, pacienteDAO);
                 case 2 -> historialDAO.listarHistorialesInteractivo(pacienteDAO);
                 case 3 -> {
                     System.out.print("Ingrese ID del historial a actualizar: ");
-                    int id = sc.nextInt(); sc.nextLine();
+                    int id = Integer.parseInt(sc.nextLine());
                     var h = historialDAO.obtenerPorId(id);
                     if (h != null) {
-                        System.out.println("Actualización completa de este historial:");
-                        historialDAO.actualizarHistorial(h);
+                        historialDAO.actualizarHistorialInteractivo(sc, h);
                     } else {
                         System.out.println("❌ Historial no encontrado");
                     }
                 }
                 case 4 -> {
                     System.out.print("Ingrese ID del historial a eliminar: ");
-                    int id = sc.nextInt(); sc.nextLine();
+                    int id = Integer.parseInt(sc.nextLine());
                     if (historialDAO.eliminarHistorial(id)) System.out.println("✅ Historial eliminado");
                     else System.out.println("❌ No se pudo eliminar historial");
                 }
                 case 0 -> System.out.println("Volviendo al menú principal...");
-                default -> System.out.println("Opción no válida");
+                default -> System.out.println("❌ Opción no válida");
             }
 
         } while (opcion != 0);
     }
 
     // ================= Menú Personal =================
-    private static void menuPersonal(Scanner sc, PersonalDAO personalDAO, TipoDocumentoDAO tipoDocumentoDAO) {
-        int opcion;
+    private static void menuPersonal(Scanner sc, PersonalDAO personalDAO, TipoDocumentoDAO tdDAO) {
+        int opcion = -1;
         do {
             System.out.println("\n=== MENÚ PERSONAL ===");
             System.out.println("1. Crear personal");
@@ -142,31 +142,35 @@ public class Main {
             System.out.println("4. Eliminar personal");
             System.out.println("0. Volver al menú principal");
             System.out.print("Selecciona una opción: ");
-            opcion = sc.nextInt();
-            sc.nextLine();
+
+            try {
+                opcion = Integer.parseInt(sc.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Opción inválida, ingresa un número.");
+                continue;
+            }
 
             switch (opcion) {
-                case 1 -> crearPersonalInteractivo(sc, personalDAO, tipoDocumentoDAO);
-                case 2 -> listarPersonalInteractivo(personalDAO, tipoDocumentoDAO);
-                case 3 -> actualizarPersonalInteractivo(sc, personalDAO, tipoDocumentoDAO);
+                case 1 -> crearPersonalInteractivo(sc, personalDAO, tdDAO);
+                case 2 -> listarPersonalInteractivo(personalDAO, tdDAO);
+                case 3 -> actualizarPersonalInteractivo(sc, personalDAO, tdDAO);
                 case 4 -> eliminarPersonalInteractivo(sc, personalDAO);
                 case 0 -> System.out.println("Volviendo al menú principal...");
-                default -> System.out.println("Opción no válida");
+                default -> System.out.println("❌ Opción no válida");
             }
 
         } while (opcion != 0);
     }
 
     // ================= Métodos interactivos Personal =================
-    private static void crearPersonalInteractivo(Scanner sc, PersonalDAO personalDAO, TipoDocumentoDAO tipoDocumentoDAO) {
+    private static void crearPersonalInteractivo(Scanner sc, PersonalDAO personalDAO, TipoDocumentoDAO tdDAO) {
         Personal p = new Personal();
 
-        tipoDocumentoDAO.listarTiposDocumento().forEach(td ->
+        tdDAO.listarTiposDocumento().forEach(td ->
                 System.out.println(td.getId_tipodocumento() + " - " + td.getTipo_documento())
         );
         System.out.print("Selecciona ID tipo documento: ");
-        p.setId_tipodocumento(sc.nextInt());
-        sc.nextLine();
+        p.setId_tipodocumento(Integer.parseInt(sc.nextLine()));
 
         System.out.print("Número de documento: "); p.setNumero_documento(sc.nextLine());
         System.out.print("Nombres: "); p.setNombres(sc.nextLine());
@@ -175,7 +179,6 @@ public class Main {
         System.out.print("Correo: "); p.setCorreo(sc.nextLine());
         System.out.print("Teléfono: "); p.setTelefono(sc.nextLine());
 
-        // Fechas opcionales
         System.out.print("Fecha de contratación (yyyy-mm-dd, dejar vacío si no aplica): ");
         String fc = sc.nextLine().trim();
         p.setFecha_contratacion(fc.isEmpty() ? null : Date.valueOf(fc));
@@ -188,7 +191,7 @@ public class Main {
         else System.out.println("❌ Error al crear personal");
     }
 
-    private static void listarPersonalInteractivo(PersonalDAO personalDAO, TipoDocumentoDAO tipoDocumentoDAO) {
+    private static void listarPersonalInteractivo(PersonalDAO personalDAO, TipoDocumentoDAO tdDAO) {
         List<Personal> lista = personalDAO.listarPersonal();
         if (lista.isEmpty()) { System.out.println("No hay personal registrado."); return; }
 
@@ -197,7 +200,7 @@ public class Main {
         System.out.println("--------------------------------------------------------------------------------------------------------");
 
         for (Personal p : lista) {
-            String tipoDoc = tipoDocumentoDAO.obtenerTipoDocumentoPorId(p.getId_tipodocumento());
+            String tipoDoc = tdDAO.obtenerTipoDocumentoPorId(p.getId_tipodocumento());
             System.out.printf("%-5d %-15s %-15s %-15s %-15s %-20s %-15s %-15s %-12s%n",
                     p.getId_personal(), tipoDoc, p.getNumero_documento(), p.getNombres(),
                     p.getApellidos(), p.getEspecialidad(), p.getCorreo(), p.getTelefono(),
@@ -205,9 +208,9 @@ public class Main {
         }
     }
 
-    private static void actualizarPersonalInteractivo(Scanner sc, PersonalDAO personalDAO, TipoDocumentoDAO tipoDocumentoDAO) {
+    private static void actualizarPersonalInteractivo(Scanner sc, PersonalDAO personalDAO, TipoDocumentoDAO tdDAO) {
         System.out.print("Ingrese ID del personal a actualizar: ");
-        int id = sc.nextInt(); sc.nextLine();
+        int id = Integer.parseInt(sc.nextLine());
         Personal p = personalDAO.obtenerPersonalPorId(id);
         if (p == null) { System.out.println("❌ Personal no encontrado"); return; }
 
@@ -219,14 +222,11 @@ public class Main {
         System.out.print("Correo [" + p.getCorreo() + "]: "); String correo = sc.nextLine(); if (!correo.isBlank()) p.setCorreo(correo);
         System.out.print("Teléfono [" + p.getTelefono() + "]: "); String tel = sc.nextLine(); if (!tel.isBlank()) p.setTelefono(tel);
 
-        // Fechas opcionales
         System.out.print("Fecha de contratación [" + (p.getFecha_contratacion() == null ? "-" : p.getFecha_contratacion()) + "]: ");
-        String fc = sc.nextLine().trim();
-        if (!fc.isEmpty()) p.setFecha_contratacion(Date.valueOf(fc));
+        String fc = sc.nextLine().trim(); if (!fc.isEmpty()) p.setFecha_contratacion(Date.valueOf(fc));
 
         System.out.print("Fecha de nacimiento [" + (p.getFecha_nacimiento() == null ? "-" : p.getFecha_nacimiento()) + "]: ");
-        String fn = sc.nextLine().trim();
-        if (!fn.isEmpty()) p.setFecha_nacimiento(Date.valueOf(fn));
+        String fn = sc.nextLine().trim(); if (!fn.isEmpty()) p.setFecha_nacimiento(Date.valueOf(fn));
 
         if(personalDAO.actualizarPersonal(p)) System.out.println("✅ Personal actualizado correctamente");
         else System.out.println("❌ Error al actualizar personal");
@@ -234,7 +234,7 @@ public class Main {
 
     private static void eliminarPersonalInteractivo(Scanner sc, PersonalDAO personalDAO) {
         System.out.print("Ingrese ID del personal a eliminar: ");
-        int id = sc.nextInt(); sc.nextLine();
+        int id = Integer.parseInt(sc.nextLine());
         if(personalDAO.eliminarPersonal(id)) System.out.println("✅ Personal eliminado");
         else System.out.println("❌ No se pudo eliminar personal");
     }
